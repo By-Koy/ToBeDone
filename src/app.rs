@@ -1,19 +1,34 @@
-use std::error::Error;
+use std::fmt::Error;
+use std::error::Error as Err;
+
 use crossterm::event::read;
 use ratatui::{DefaultTerminal, Frame};
 
-pub fn main(term: &mut DefaultTerminal) -> Result<(), Box<dyn Error>> {
-    let input = read().expect("input unreachable");
-    
-    loop {
-        term.draw(render)?;
+#[derive(Debug, Default)]
+pub struct State {
+    counter: u8,
+    exit: bool,
+} impl State {
+    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<(), Box<dyn Err>> {
 
-        if input.is_key_press() {
-            break Ok(())
+        while !self.exit {
+            main(self, terminal)?;
         }
+        Ok(())
     }
-}
+} 
 
+pub fn main(app: &mut State, term: &mut DefaultTerminal) -> Result<(), Box<dyn Err>> {
+    let input = read()?;
+    
+    term.draw(render)?;
+
+    if input.is_key_press() {
+        app.exit = true;
+    }
+
+    Ok(())
+}
 fn render(frame: &mut Frame) {
     frame.render_widget("hellodfgjdfhjfghj world", frame.area());
 }
