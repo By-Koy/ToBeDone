@@ -4,7 +4,7 @@ use std::os::unix::fs as unix;
 
 use crate::app::State;
 
-pub fn main(app: &mut State, args: Vec<String>) -> Result<(), Box<dyn Error>> {
+pub fn main(app: &mut State, args: Vec<String>) {
     let id: &str;
 
     if args.len() <= 1 {
@@ -22,7 +22,6 @@ pub fn main(app: &mut State, args: Vec<String>) -> Result<(), Box<dyn Error>> {
         app.id = id.to_string();
     }
 
-    Ok(())
 }
 
 fn check_path(app: &mut State, id: &str) -> Result<(), Box<dyn Error>> {
@@ -45,15 +44,10 @@ pub fn exit(app: &mut State) {
         fs::remove_file(&path)
             .expect("unable to remove note, please check permissions");
     } else if app.id != "Recent" {
-        let rm = fs::remove_file("/var/local/TBD/Recent.md");
-        if let Err(_) = rm {
-            println!("unable to remove old symlink, please check permissions");
-        }
+        fs::remove_file("/var/local/TBD/Recent.md")
+            .expect("unable to remove old symlink, please check permissions");
 
-        let symlink = unix::symlink(&path, "/var/local/TBD/Recent.md");
-
-        if let Err(_) = symlink {
-            println!("unable to create symlink, please check permissions");
-        }
+        unix::symlink(&path, "/var/local/TBD/Recent.md")
+            .expect("unable to create symlink, please check permissions");
     }
 }
