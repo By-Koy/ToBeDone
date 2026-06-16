@@ -8,5 +8,5 @@ fn main() {
     let mut app = app::State::default();
 
     file::main(&mut app, args);
-    ratatui::run(|terminal| app.run(terminal));
+    ratatui::run(|terminal| app.run(terminal)).unwrap();
 }
