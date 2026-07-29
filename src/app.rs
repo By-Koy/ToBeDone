@@ -9,8 +9,98 @@ use ratatui::{
 
 #[derive(Debug, Default)]
 struct Cursor {
-    line: u16,
-    column: u16
+    line_vis: u16,
+    column_vis: u16,
+    line: usize,
+    column: usize
+} impl Cursor {
+
+    //Change values directly
+        pub fn add_line(&mut self, value: u16) {
+            self.line_vis+=value;
+            self.line+=usize::from(value);
+        }
+
+        pub fn remove_line(&mut self, value: u16) {
+            self.line_vis-=value;
+            self.line-=usize::from(value);
+        }
+
+        pub fn set_line(&mut self, value: u16) {
+            self.line_vis=value;
+            self.line=usize::from(value);
+        }
+
+        pub fn add_column(&mut self, value: u16) {
+            self.column_vis+=value;
+            self.column+=usize::from(value);
+        }
+
+        pub fn remove_column(&mut self, value: u16) {
+            self.column_vis-=value;
+            self.column-=usize::from(value);
+        }
+
+        pub fn set_column(&mut self, value: u16) {
+            self.column_vis=value;
+            self.column=usize::from(value);
+        }
+
+    // Move cursor automatically
+        fn move_left(&mut self) {
+            if self.column <= 0 { return }
+            self.remove_column(1);
+        }
+
+        fn move_right(&mut self) {
+            if self.column >= self.constraints.width { return }
+            self.add_column(1);
+        }
+
+        fn move_up(&mut self) {
+            if self.line <= 0 { return }
+
+            let len: usize = self.contents[usize::from(self.line-1)].len().try_into().unwrap();
+
+            self.remove_line(1);
+
+            if self.column > len {
+                self.column = len;
+            }
+        }
+
+        fn move_down(&mut self) {
+            if self.line >= self.contents.len()-1 { return }
+
+            let len: usize = self.contents[usize::from(self.line+1)].len().try_into().unwrap();
+
+            self.add_line(1);
+
+            if self.column > len {
+                self.column = len;
+            }
+
+            if self.line >= self.constraints.height {
+                self.viewport+=1;
+            }
+        }
+
+    // Collapse cursor
+        fn collapse_left(&mut self) {
+            if self.line == 0 { return }
+
+            let line_length: usize = usize::from(self.contents[usize::from(self.line-1)].len());
+
+            self.column = line_length.try_into().unwrap();
+            self.move_up();
+        }
+
+        fn collapse_right(&mut self) {
+            if usize::from(self.line) >= self.contents.len()-1 { return }
+
+            self.set_column(0);
+            self.move_down();
+        }
 }
 
 
@@ -20,6 +110,7 @@ pub struct State {
     exit: bool,
     cursor: Cursor,
     constraints: Rect,
+    viewport: usize,
     pub contents: Vec<String>,
     pub id: String,
 } impl State {
@@ -40,97 +131,61 @@ pub struct State {
     }
 
     fn write(&mut self, char: char) {
-        let line_index: usize = usize::from(self.cursor.line);
-        let char_index: usize = usize::from(self.cursor.column);
-
-        self.contents[line_index].insert(char_index, char);
-        self.cursor.column += 1;
+        self.contents[self.cursor.line].insert(self.cursor.column, char);
+        self.cursor.move_right();
     }
 
     fn backspace(&mut self) {
-        let line_index: usize = usize::from(self.cursor.line);
-        let char_index: usize = usize::from(self.cursor.column);
-        
-        if char_index == 0 {
-            match line_index {
+        if self.cursor.column == 0 {
+            match self.cursor.line {
                 0 => return,
                 _ => self.collapse_line(),
             };
         } else {
-            self.contents[line_index].remove(char_index-1);
-            self.move_cursor_left();
+            self.contents[self.cursor.line].remove(self.cursor.column-1);
+            self.cursor.move_left();
         }
     }
 
-    fn collapse_line(&mut self) {
-        let line_index: usize = usize::from(self.cursor.line);
-        let collapsed: &str = &self.contents[line_index].clone();
+    fn new_line(&mut self) {
+        let remainder: String = self.contents[self.cursor.line].chars().skip(usize::from(self.cursor.column)).collect();
 
-        self.cursor.column = self.contents[line_index-1].len().try_into().unwrap();
-        self.move_cursor_up();
-
-        self.contents[line_index-1] += collapsed;
-        self.contents.remove(line_index);
+        self.contents.insert(self.cursor.line+1, remainder);
+        self.cursor.move_down();
+        self.cursor.set_column(0);
 
     }
 
     fn move_cursor(&mut self, direction: KeyCode) {
-        let line_index: usize = usize::from(self.cursor.line);
-        let char_index: usize = usize::from(self.cursor.column);
+        let line_length: usize = usize::from(self.contents[self.cursor.line].len());
 
-        let line_length: usize = usize::from(self.contents[line_index].len());
+        if direction == KeyCode::Left && self.cursor.column == 0 { self.cursor.collapse_left(); return }
 
-        if direction == KeyCode::Left && char_index == 0 { self.collapse_cursor_left(); return }
-
-        if direction == KeyCode::Right && char_index == line_length { self.collapse_cursor_right(); return }
+        if direction == KeyCode::Right && self.cursor.column == line_length { self.cursor.collapse_right(); return }
 
         match direction {
-            KeyCode::Left => self.move_cursor_left(),
-            KeyCode::Right => self.move_cursor_right(),
-            KeyCode::Down => self.move_cursor_down(),
-            KeyCode::Up => self.move_cursor_up(),
+            KeyCode::Left => self.cursor.move_left(),
+            KeyCode::Right => self.cursor.move_right(),
+            KeyCode::Down => self.cursor.move_down(),
+            KeyCode::Up => self.cursor.move_up(),
             _ => return
         };
 
     }
 
-    fn collapse_cursor_left(&mut self) {
-        let line_index: usize = usize::from(self.cursor.line);
-        let line_length: usize = usize::from(self.contents[line_index-1].len());
+    fn collapse_line(&mut self) {
+        let collapsed: &str = &self.contents[self.cursor.line].clone();
 
-        self.cursor.column = line_length.try_into().unwrap();
-        self.move_cursor_up();
-    }
+        self.cursor.set_column(self.contents[self.cursor.line-1].len().try_into().unwrap());
+        self.cursor.move_up();
 
-    fn collapse_cursor_right(&mut self) {
-        self.cursor.column=0;
-        self.move_cursor_down();
-    }
+        self.contents[self.cursor.line-1] += collapsed;
+        self.contents.remove(self.cursor.line);
 
-    fn move_cursor_left(&mut self) {
-        if self.cursor.column <= 0 { return }
-        self.cursor.column-=1;
-    }
-
-    // remember to add overflow
-    fn move_cursor_right(&mut self) {
-        if self.cursor.column >= self.constraints.width { return }
-        self.cursor.column+=1;
-    }
-
-    fn move_cursor_up(&mut self) {
-        if self.cursor.line <= 0 { return }
-        self.cursor.line-=1;
-    }
-
-    // remember to add overflow
-    fn move_cursor_down(&mut self) {
-        if usize::from(self.cursor.line) >= self.contents.len()-1 { return }
-        self.cursor.line+=1;
     }
 
     fn draw(&self, frame: &mut Frame) {
-        frame.set_cursor_position(Position::new(self.cursor.column+1, self.cursor.line+1));
+        frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
         frame.render_widget(self, frame.area());
     }
 
@@ -149,7 +204,7 @@ pub struct State {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let file_contents = Text::from(self.contents.iter().map(|s| Line::from(&s[..]))
+        let file_contents = Text::from(self.contents.iter().skip(self.viewport).map(|s| Line::from(&s[..]))
                                         .collect::<Vec<_>>());
 
         Paragraph::new(file_contents)
@@ -171,7 +226,7 @@ pub fn main(app: &mut State) -> Result<(), Box<dyn Error>> {
                 KeyCode::Backspace => app.backspace(),
                 KeyCode::Char('q') => app.exit = true,
                 KeyCode::Char(char) => app.write(char),
-                KeyCode::Enter => app.write('\n'),
+                KeyCode::Enter => app.new_line(),
                 _ => {}
             }
         }
