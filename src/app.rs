@@ -48,13 +48,19 @@ struct Cursor {
         // }
 
         pub fn add_column(&mut self, value: u16) {
-            self.column_vis+=value;
             self.column+=usize::from(value);
+
+            if self.column_vis == self.constraints.unwrap().width { return }
+
+            self.column_vis+=value;
         }
 
         pub fn lower_column(&mut self, value: u16) {
-            self.column_vis-=value;
             self.column-=usize::from(value);
+
+            if self.column_vis == 0 { return }
+
+            self.column_vis-=value;
         }
 
         pub fn set_column(&mut self, value: u16) {
@@ -69,35 +75,34 @@ struct Cursor {
         }
 
         fn move_right(&mut self) {
-            if self.column >= usize::from(self.constraints.unwrap().width) { return }
             self.add_column(1);
         }
 
-        fn move_up(&mut self, len: usize) {
+        fn move_up(&mut self, len: u16) {
             if self.line <= 0 { return }
 
             self.lower_line(1);
 
-            if self.column > len {
-                self.column = len;
+            if self.column > usize::from(len) {
+                self.set_column(len);
             }
         }
 
-        fn move_down(&mut self, len: usize, len_max: usize) {
+        fn move_down(&mut self, len: u16, len_max: usize) {
             if self.line >= len_max { return }
 
             self.add_line(1);
 
-            if self.column > len {
-                self.column = len;
+            if self.column > usize::from(len) {
+                self.set_column(len);
             }
         }
 
     // Collapse cursor
-        fn collapse_left(&mut self, len: usize) {
+        fn collapse_left(&mut self, len: u16) {
             if self.line == 0 { return }
 
-            self.column = len.try_into().unwrap();
+            self.set_column(len);
             self.lower_line(1);
         }
 
@@ -162,7 +167,7 @@ pub struct State {
         let line_len: usize = usize::from(self.contents[self.cursor.line].len());
         let file_len: usize = self.contents.len()-1;
 
-        let len: usize = if self.cursor.line == 0
+        let len: u16 = if self.cursor.line == 0 || direction == KeyCode::Down
                 { self.contents[self.cursor.line+1].len().try_into().unwrap() }
                     else
                 { self.contents[usize::from(self.cursor.line-1)].len().try_into().unwrap() };
@@ -216,8 +221,9 @@ pub struct State {
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let file_contents = Text::from(self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis)).map(|s| Line::from(&s[..]))
-                                        .collect::<Vec<_>>());
+        let file_contents = Text::from(self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis))
+                            .map(|s| Line::from(&s[self.cursor.column-usize::from(self.cursor.column_vis)..]))
+                            .collect::<Vec<_>>());
 
         Paragraph::new(file_contents)
             .block(block)
