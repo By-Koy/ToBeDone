@@ -12,31 +12,47 @@ struct Cursor {
     line_vis: u16,
     column_vis: u16,
     line: usize,
-    column: usize
+    column: usize,
+
+    constraints: Option<Rect>,
 } impl Cursor {
 
-    //Change values directly
+    // Initialize constraints
+        pub fn init(&mut self, term: &mut DefaultTerminal) {
+            let area: Rect = term.get_frame().area();
+            self.constraints = Some(Rect::new(area.x, area.y, area.width-3, area.height-3));
+        }
+
+    // Change values directly
         pub fn add_line(&mut self, value: u16) {
-            self.line_vis+=value;
             self.line+=usize::from(value);
+
+            if self.line_vis == self.constraints.unwrap().height { return }
+            
+            self.line_vis+=value;
         }
 
-        pub fn remove_line(&mut self, value: u16) {
-            self.line_vis-=value;
+        pub fn lower_line(&mut self, value: u16) {
+            if self.line <= 0 { return }
+
             self.line-=usize::from(value);
+
+            if self.line_vis == 0 { return }
+
+            self.line_vis-=value;
         }
 
-        pub fn set_line(&mut self, value: u16) {
-            self.line_vis=value;
-            self.line=usize::from(value);
-        }
+        // pub fn set_line(&mut self, value: u16) {
+        //     self.line_vis=value;
+        //     self.line=usize::from(value);
+        // }
 
         pub fn add_column(&mut self, value: u16) {
             self.column_vis+=value;
             self.column+=usize::from(value);
         }
 
-        pub fn remove_column(&mut self, value: u16) {
+        pub fn lower_column(&mut self, value: u16) {
             self.column_vis-=value;
             self.column-=usize::from(value);
         }
@@ -49,57 +65,47 @@ struct Cursor {
     // Move cursor automatically
         fn move_left(&mut self) {
             if self.column <= 0 { return }
-            self.remove_column(1);
+            self.lower_column(1);
         }
 
         fn move_right(&mut self) {
-            if self.column >= self.constraints.width { return }
+            if self.column >= usize::from(self.constraints.unwrap().width) { return }
             self.add_column(1);
         }
 
-        fn move_up(&mut self) {
+        fn move_up(&mut self, len: usize) {
             if self.line <= 0 { return }
 
-            let len: usize = self.contents[usize::from(self.line-1)].len().try_into().unwrap();
-
-            self.remove_line(1);
+            self.lower_line(1);
 
             if self.column > len {
                 self.column = len;
             }
         }
 
-        fn move_down(&mut self) {
-            if self.line >= self.contents.len()-1 { return }
-
-            let len: usize = self.contents[usize::from(self.line+1)].len().try_into().unwrap();
+        fn move_down(&mut self, len: usize, len_max: usize) {
+            if self.line >= len_max { return }
 
             self.add_line(1);
 
             if self.column > len {
                 self.column = len;
             }
-
-            if self.line >= self.constraints.height {
-                self.viewport+=1;
-            }
         }
 
     // Collapse cursor
-        fn collapse_left(&mut self) {
+        fn collapse_left(&mut self, len: usize) {
             if self.line == 0 { return }
 
-            let line_length: usize = usize::from(self.contents[usize::from(self.line-1)].len());
-
-            self.column = line_length.try_into().unwrap();
-            self.move_up();
+            self.column = len.try_into().unwrap();
+            self.lower_line(1);
         }
 
-        fn collapse_right(&mut self) {
-            if usize::from(self.line) >= self.contents.len()-1 { return }
+        fn collapse_right(&mut self, len_max: usize) {
+            if usize::from(self.line) >= len_max { return }
 
             self.set_column(0);
-            self.move_down();
+            self.add_line(1);
         }
 }
 
@@ -109,15 +115,11 @@ struct Cursor {
 pub struct State {
     exit: bool,
     cursor: Cursor,
-    constraints: Rect,
-    viewport: usize,
     pub contents: Vec<String>,
     pub id: String,
 } impl State {
     pub fn run(&mut self, term: &mut DefaultTerminal) -> Result<(), Box<dyn Error>> {
-        self.constraints = term.get_frame().area();
-        self.constraints.width = self.constraints.width-3;
-        self.constraints.height = self.constraints.height-3;
+        self.cursor.init(term);
 
         while !self.exit {
             term.draw(|frame| self.draw(frame))?;
@@ -132,7 +134,7 @@ pub struct State {
 
     fn write(&mut self, char: char) {
         self.contents[self.cursor.line].insert(self.cursor.column, char);
-        self.cursor.move_right();
+        self.move_cursor(KeyCode::Right);
     }
 
     fn backspace(&mut self) {
@@ -151,23 +153,29 @@ pub struct State {
         let remainder: String = self.contents[self.cursor.line].chars().skip(usize::from(self.cursor.column)).collect();
 
         self.contents.insert(self.cursor.line+1, remainder);
-        self.cursor.move_down();
+        self.move_cursor(KeyCode::Down);
         self.cursor.set_column(0);
 
     }
 
     fn move_cursor(&mut self, direction: KeyCode) {
-        let line_length: usize = usize::from(self.contents[self.cursor.line].len());
+        let line_len: usize = usize::from(self.contents[self.cursor.line].len());
+        let file_len: usize = self.contents.len()-1;
 
-        if direction == KeyCode::Left && self.cursor.column == 0 { self.cursor.collapse_left(); return }
+        let len: usize = if self.cursor.line == 0
+                { self.contents[self.cursor.line+1].len().try_into().unwrap() }
+                    else
+                { self.contents[usize::from(self.cursor.line-1)].len().try_into().unwrap() };
 
-        if direction == KeyCode::Right && self.cursor.column == line_length { self.cursor.collapse_right(); return }
+        if direction == KeyCode::Left && self.cursor.column == 0 { self.cursor.collapse_left(len); return }
+
+        if direction == KeyCode::Right && self.cursor.column == line_len { self.cursor.collapse_right(file_len); return }
 
         match direction {
             KeyCode::Left => self.cursor.move_left(),
             KeyCode::Right => self.cursor.move_right(),
-            KeyCode::Down => self.cursor.move_down(),
-            KeyCode::Up => self.cursor.move_up(),
+            KeyCode::Down => self.cursor.move_down(len, file_len),
+            KeyCode::Up => self.cursor.move_up(len),
             _ => return
         };
 
@@ -177,7 +185,7 @@ pub struct State {
         let collapsed: &str = &self.contents[self.cursor.line].clone();
 
         self.cursor.set_column(self.contents[self.cursor.line-1].len().try_into().unwrap());
-        self.cursor.move_up();
+        self.move_cursor(KeyCode::Up);
 
         self.contents[self.cursor.line-1] += collapsed;
         self.contents.remove(self.cursor.line);
@@ -197,14 +205,18 @@ pub struct State {
         let instructions = Line::from(vec![
             " Quit ".into(),
             "<Q> ".blue().bold(),
-            format!("{}, {} ", self.cursor.line, self.cursor.column).into()
+            format!("l:{}-v:{}, c:{}-v:{} - ch{}, cw{} ",
+                self.cursor.line, self.cursor.line_vis,
+                self.cursor.column, self.cursor.column_vis,
+                self.cursor.constraints.unwrap().height,
+                self.cursor.constraints.unwrap().width).into()
         ]);
         let block = Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
 
-        let file_contents = Text::from(self.contents.iter().skip(self.viewport).map(|s| Line::from(&s[..]))
+        let file_contents = Text::from(self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis)).map(|s| Line::from(&s[..]))
                                         .collect::<Vec<_>>());
 
         Paragraph::new(file_contents)
