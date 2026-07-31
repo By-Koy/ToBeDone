@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use crate::file;
+use crate::Args;
 
 use crossterm::{ event::{self, Event, KeyCode} };
 use ratatui::{
@@ -120,11 +121,13 @@ struct Cursor {
 pub struct State {
     exit: bool,
     cursor: Cursor,
+    args: Args,
     pub contents: Vec<String>,
     pub id: String,
 } impl State {
-    pub fn run(&mut self, term: &mut DefaultTerminal) -> Result<(), Box<dyn Error>> {
+    pub fn run(&mut self, term: &mut DefaultTerminal, args: Args) -> Result<(), Box<dyn Error>> {
         self.cursor.init(term);
+        self.args = args;
 
         while !self.exit {
             term.draw(|frame| self.draw(frame))?;
@@ -136,6 +139,12 @@ pub struct State {
 
         Ok(())
     }
+
+    fn draw(&self, frame: &mut Frame) {
+        frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
+        frame.render_widget(self, frame.area());
+    }
+
 
     fn write(&mut self, char: char) {
         self.contents[self.cursor.line].insert(self.cursor.column, char);
@@ -200,25 +209,26 @@ pub struct State {
 
     }
 
-    fn draw(&self, frame: &mut Frame) {
-        frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
-        frame.render_widget(self, frame.area());
-    }
-
 } impl Widget for &State {
 
         fn render(self, area: Rect, buf: &mut Buffer) {
 
         let title = Line::from(" ToBeDone ".bold());
-        let instructions = Line::from(vec![
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-            format!("l:{}-v:{}, c:{}-v:{} - ch{}, cw{} ",
-                self.cursor.line, self.cursor.line_vis,
-                self.cursor.column, self.cursor.column_vis,
-                self.cursor.constraints.unwrap().height,
-                self.cursor.constraints.unwrap().width).into()
-        ]);
+        let instructions = if self.args.debug {
+                                Line::from( vec![
+                                            " Quit ".into(),
+                                            "<Q> ".blue().bold(),
+                                            format!("l:{}-v:{}, c:{}-v:{} - ch{}, cw{} ",
+                                                self.cursor.line, self.cursor.line_vis,
+                                                self.cursor.column, self.cursor.column_vis,
+                                                self.cursor.constraints.unwrap().height,
+                                                self.cursor.constraints.unwrap().width).into() ])
+                            } else {
+                                Line::from(vec![
+                                            " Quit ".into(),
+                                            "<Q> ".blue().bold() ])
+                            };
+
         let block = Block::bordered()
             .title(title.centered())
             .title_bottom(instructions.centered())

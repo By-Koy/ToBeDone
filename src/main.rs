@@ -4,7 +4,7 @@ mod app;
 mod file;
 
 #[derive(Debug, Default)]
-struct Args {
+pub struct Args {
     debug: bool,
     sample: bool,
     no_eggs: bool,
@@ -39,5 +39,5 @@ fn main() {
     let mut app = app::State::default();
 
     file::main(&mut app, input, &args);
-    ratatui::run(|terminal| app.run(terminal)).unwrap();
+    ratatui::run(|terminal| app.run(terminal, args)).unwrap();
 }
