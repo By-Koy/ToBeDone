@@ -157,7 +157,9 @@ pub struct State {
     fn new_line(&mut self) {
         let remainder: String = self.contents[self.cursor.line].chars().skip(usize::from(self.cursor.column)).collect();
 
+        self.contents[self.cursor.line].replace_range(self.cursor.column.., "");
         self.contents.insert(self.cursor.line+1, remainder);
+
         self.move_cursor(KeyCode::Down);
         self.cursor.set_column(0);
 
@@ -167,10 +169,12 @@ pub struct State {
         let line_len: usize = usize::from(self.contents[self.cursor.line].len());
         let file_len: usize = self.contents.len()-1;
 
-        let len: u16 = if self.cursor.line == 0 || direction == KeyCode::Down
-                { self.contents[self.cursor.line+1].len().try_into().unwrap() }
-                    else
-                { self.contents[usize::from(self.cursor.line-1)].len().try_into().unwrap() };
+        let len: u16 = if self.cursor.line == 0 || self.cursor.line == file_len { 0
+                } else if direction == KeyCode::Down {
+                    self.contents[self.cursor.line+1].len().try_into().unwrap()
+                } else {
+                    self.contents[usize::from(self.cursor.line-1)].len().try_into().unwrap()
+                };
 
         if direction == KeyCode::Left && self.cursor.column == 0 { self.cursor.collapse_left(len); return }
 
@@ -189,11 +193,10 @@ pub struct State {
     fn collapse_line(&mut self) {
         let collapsed: &str = &self.contents[self.cursor.line].clone();
 
-        self.cursor.set_column(self.contents[self.cursor.line-1].len().try_into().unwrap());
-        self.move_cursor(KeyCode::Up);
+        self.move_cursor(KeyCode::Left);
 
-        self.contents[self.cursor.line-1] += collapsed;
-        self.contents.remove(self.cursor.line);
+        self.contents[self.cursor.line] += collapsed;
+        self.contents.remove(self.cursor.line+1);
 
     }
 
