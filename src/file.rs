@@ -38,7 +38,7 @@ fn check_path(app: &mut State, id: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn exit(app: &mut State) {
+pub fn exit(app: &State) {
     let path = format!("/var/local/TBD/{}.md", &app.id);
     if app.contents.is_empty()  {
         fs::remove_file(&path)
@@ -50,4 +50,8 @@ pub fn exit(app: &mut State) {
         unix::symlink(&path, "/var/local/TBD/Recent.md")
             .expect("unable to create symlink, please check permissions");
     }
+
+    let write: String = app.contents.clone().into_iter().map(|s| format!("{}\n", &s[..])).collect();
+    fs::write(&path, write)
+        .expect("unable to create/write to file, please check permissions.");
 }
