@@ -38,6 +38,6 @@ fn main() {
 
     let mut app = app::State::default();
 
-    file::main(&mut app, input);
+    file::main(&mut app, input, &args);
     ratatui::run(|terminal| app.run(terminal)).unwrap();
 }

@@ -3,14 +3,17 @@ use std::error::Error;
 use std::os::unix::fs as unix;
 
 use crate::app::State;
+use crate::Args;
 
-pub fn main(app: &mut State, args: Vec<String>) {
+pub fn main(app: &mut State, input: Vec<String>, args: &Args) {
+    if args.sample {sample(app); return}
+
     let id: &str;
 
-    if args.len() <= 1 {
+    if input.len() <= 1 {
         id = "Recent";
     } else {
-        id = &args[1];
+        id = &input[1];
     }
 
     let check = check_path(app, &id);
@@ -36,6 +39,20 @@ fn check_path(app: &mut State, id: &str) -> Result<(), Box<dyn Error>> {
     app.id = String::from(id);
 
     Ok(())
+}
+
+fn sample(app: &mut State) {
+    let sample_text: Vec<String> = vec!(" \"It is this eternal dance,".to_string(),
+                                        " that separates human beings,".to_string(),
+                                        " from demons, from angels,".to_string(),
+                                        " from gods.".to_string(),
+                                        " And I must not forget,".to_string(),
+                                        " We must not forget,".to_string(),
+                                        " That we are human-beings.".to_string(),
+                                        "     --Ren Gill\"".to_string() );
+
+    app.contents = sample_text;
+    app.id = "Sample".to_string();
 }
 
 pub fn exit(app: &State) {
