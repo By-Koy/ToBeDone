@@ -5,7 +5,12 @@ use crate::Args;
 
 use crossterm::{ event::{self, Event, KeyCode} };
 use ratatui::{
-    DefaultTerminal, Frame, buffer::Buffer, layout::{Position, Rect}, style::Stylize, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}
+    DefaultTerminal, Frame, buffer::Buffer,
+    layout::{Position, Rect}, 
+    style::{Stylize},
+    symbols::border,
+    text::{Line, Text},
+    widgets::{Block, Paragraph, Widget}
 };
 
 #[derive(Debug, Default)]
@@ -135,7 +140,6 @@ pub struct State {
         }
 
         file::exit(self);
-        println!("{self:?}");
 
         Ok(())
     }
@@ -174,6 +178,16 @@ pub struct State {
 
     }
 
+    fn collapse_line(&mut self) {
+        let collapsed: &str = &self.contents[self.cursor.line].clone();
+
+        self.move_cursor(KeyCode::Left);
+
+        self.contents[self.cursor.line] += collapsed;
+        self.contents.remove(self.cursor.line+1);
+
+    }
+
     fn move_cursor(&mut self, direction: KeyCode) {
         let line_len: usize = usize::from(self.contents[self.cursor.line].len());
         let file_len: usize = self.contents.len()-1;
@@ -199,30 +213,40 @@ pub struct State {
 
     }
 
-    fn collapse_line(&mut self) {
-        let collapsed: &str = &self.contents[self.cursor.line].clone();
-
-        self.move_cursor(KeyCode::Left);
-
-        self.contents[self.cursor.line] += collapsed;
-        self.contents.remove(self.cursor.line+1);
-
-    }
 
 } impl Widget for &State {
 
         fn render(self, area: Rect, buf: &mut Buffer) {
 
         let title = Line::from(" ToBeDone ".bold());
+
+        let file_contents: Text = self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis))
+                            .map(|s| Line::from(&s[self.cursor.column-usize::from(self.cursor.column_vis)..])).collect();
+
+        // .map(|l: Line| -> Line { match &l.to_string()[0..l.to_string().char_indices().nth(1).map(|(n, _)| {return n;}).unwrap()] {
+        //     "#b" => l.style(Color::Black),
+        //     "#B" => l.style(Color::LightBlue),
+        //     "#R" => l.style(Color::Red),
+        //     "#Y" => l.style(Color::LightYellow),
+        //     "#M" => l.style(Color::Magenta),
+        //     "#C" => l.style(Color::Cyan),
+        //     "#G" => l.style(Color::Green),
+        //     "**" => l.bold(),
+        //     "* " => l.italic(),
+        //     _ => l
+        // }})
+
         let instructions = if self.args.debug {
                                 Line::from( vec![
                                             " Quit ".into(),
                                             "<Q> ".blue().bold(),
-                                            format!("l:{}-v:{}, c:{}-v:{} - ch{}, cw{} ",
+                                            format!("l:{}-v:{}, c:{}-v:{} - ch{}, cw{} |",
                                                 self.cursor.line, self.cursor.line_vis,
                                                 self.cursor.column, self.cursor.column_vis,
                                                 self.cursor.constraints.unwrap().height,
-                                                self.cursor.constraints.unwrap().width).into() ])
+                                                self.cursor.constraints.unwrap().width).into(),
+                                                file_contents.lines[self.cursor.line].spans[0].clone(),
+                                                " ".into() ])
                             } else {
                                 Line::from(vec![
                                             " Quit ".into(),
@@ -233,10 +257,6 @@ pub struct State {
             .title(title.centered())
             .title_bottom(instructions.centered())
             .border_set(border::THICK);
-
-        let file_contents = Text::from(self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis))
-                            .map(|s| Line::from(&s[self.cursor.column-usize::from(self.cursor.column_vis)..]))
-                            .collect::<Vec<_>>());
 
         Paragraph::new(file_contents)
             .block(block)
