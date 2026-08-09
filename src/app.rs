@@ -3,6 +3,8 @@ use std::error::Error;
 use crate::file;
 use crate::Args;
 
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyModifiers;
 use crossterm::{ event::{self, Event, KeyCode} };
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
@@ -213,6 +215,16 @@ pub struct State {
 
     }
 
+    fn parse_mod(&mut self, event: KeyEvent) {
+        if event.modifiers == KeyModifiers::CONTROL || event.modifiers == KeyModifiers::SUPER {
+            match event.code {
+                KeyCode::Char('q') => self.exit = true,
+                _ => return
+            }
+        }
+
+    }
+
 
 } impl Widget for &State {
 
@@ -269,16 +281,18 @@ pub fn main(app: &mut State) -> Result<(), Box<dyn Error>> {
 
     if input.is_key_press() {
         if let Event::Key(key_event) = input {
-            match key_event.code {
-                KeyCode::Left => app.move_cursor(KeyCode::Left),
-                KeyCode::Right => app.move_cursor(KeyCode::Right),
-                KeyCode::Down => app.move_cursor(KeyCode::Down),
-                KeyCode::Up => app.move_cursor(KeyCode::Up),
-                KeyCode::Backspace => app.backspace(),
-                KeyCode::Char('q') => app.exit = true,
-                KeyCode::Char(char) => app.write(char),
-                KeyCode::Enter => app.new_line(),
-                _ => {}
+            match key_event.modifiers {
+                KeyModifiers::NONE => match key_event.code {
+                        KeyCode::Left => app.move_cursor(KeyCode::Left),
+                        KeyCode::Right => app.move_cursor(KeyCode::Right),
+                        KeyCode::Down => app.move_cursor(KeyCode::Down),
+                        KeyCode::Up => app.move_cursor(KeyCode::Up),
+                        KeyCode::Backspace => app.backspace(),
+                        KeyCode::Char(char) => app.write(char),
+                        KeyCode::Enter => app.new_line(),
+                        _ => {}
+                    },
+                _ => app.parse_mod(key_event),
             }
         }
     }
