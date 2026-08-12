@@ -3,9 +3,12 @@ use std::error::Error;
 use crate::file;
 use crate::Args;
 
+use crossterm::event::KeyCode::Modifier;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
 use crossterm::{ event::{self, Event, KeyCode} };
+use ratatui::layout::Alignment;
+use ratatui::widgets::Borders;
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
     layout::{Position, Rect}, 
@@ -127,6 +130,7 @@ struct Cursor {
 #[derive(Debug, Default)]
 pub struct State {
     exit: bool,
+    options_menu: bool,
     cursor: Cursor,
     args: Args,
     pub contents: Vec<String>,
@@ -148,7 +152,18 @@ pub struct State {
 
     fn draw(&self, frame: &mut Frame) {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
-        frame.render_widget(self, frame.area());
+
+        if self.options_menu {
+            let popup: Block = Block::new().borders(Borders::NONE).title_bottom("Options".blue().bold()).title_alignment(Alignment::Center);
+
+            frame.render_widget(self, 
+                Rect { x: 0, y: 0, width: frame.area().width, height: frame.area().height-4});
+            
+            frame.render_widget(popup, 
+                Rect { x: 0, y: frame.area().height-4, width: frame.area().width, height: 4});
+        } else {
+            frame.render_widget(self, frame.area());
+        }
     }
 
 
@@ -215,16 +230,21 @@ pub struct State {
 
     }
 
+    fn format_display(&mut self) {
+        if self.options_menu { self.options_menu = false }
+            else { self.options_menu = true }
+    }
+
     fn parse_mod(&mut self, event: KeyEvent) {
         if event.modifiers == KeyModifiers::CONTROL || event.modifiers == KeyModifiers::SUPER {
             match event.code {
                 KeyCode::Char('q') => self.exit = true,
+                KeyCode::Char('a') => self.format_display(),
                 _ => return
             }
         }
 
     }
-
 
 } impl Widget for &State {
 
@@ -252,11 +272,12 @@ pub struct State {
                                 Line::from( vec![
                                             " Quit ".into(),
                                             "<Q> ".blue().bold(),
-                                            format!("l:{}-v:{}, c:{}-v:{} - ch{}, cw{} |",
+                                            format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , om:{} |",
                                                 self.cursor.line, self.cursor.line_vis,
                                                 self.cursor.column, self.cursor.column_vis,
                                                 self.cursor.constraints.unwrap().height,
-                                                self.cursor.constraints.unwrap().width).into(),
+                                                self.cursor.constraints.unwrap().width,
+                                                self.options_menu).into(),
                                                 file_contents.lines[self.cursor.line].spans[0].clone(),
                                                 " ".into() ])
                             } else {
@@ -266,9 +287,9 @@ pub struct State {
                             };
 
         let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
+                                .title(title.centered())
+                                .title_bottom(instructions.centered())
+                                .border_set(border::THICK);
 
         Paragraph::new(file_contents)
             .block(block)
