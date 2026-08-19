@@ -125,12 +125,15 @@ struct Cursor {
         }
 }
 
-
+#[derive(Debug, Default)]
+struct FormatDisplay {
+    hidden: bool
+}
 
 #[derive(Debug, Default)]
 pub struct State {
     exit: bool,
-    options_menu: bool,
+    format_display: FormatDisplay,
     cursor: Cursor,
     args: Args,
     pub contents: Vec<String>,
@@ -153,7 +156,7 @@ pub struct State {
     fn draw(&self, frame: &mut Frame) {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
 
-        if self.options_menu {
+        if self.format_display.hidden {
             let popup: Block = Block::new()
                                 // .borders(Borders::NONE)
                                 .title_bottom("Options".blue().bold())
@@ -233,8 +236,8 @@ pub struct State {
     }
 
     fn format_display(&mut self) {
-        if self.options_menu { self.options_menu = false }
-            else { self.options_menu = true }
+        if self.format_display.hidden { self.format_display.hidden = false }
+            else { self.format_display.hidden = true }
     }
 
     fn parse_mod(&mut self, event: KeyEvent) {
@@ -274,12 +277,12 @@ pub struct State {
                                 Line::from( vec![
                                             " Quit ".into(),
                                             "<Q> ".blue().bold(),
-                                            format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , om:{} |",
+                                            format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , fd:{} |",
                                                 self.cursor.line, self.cursor.line_vis,
                                                 self.cursor.column, self.cursor.column_vis,
                                                 self.cursor.constraints.unwrap().height,
                                                 self.cursor.constraints.unwrap().width,
-                                                self.options_menu).into(),
+                                                self.format_display.hidden).into(),
                                                 file_contents.lines[self.cursor.line].spans[0].clone(),
                                                 " ".into() ])
                             } else {
