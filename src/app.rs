@@ -174,16 +174,18 @@ pub struct State {
         Ok(())
     }
 
-    fn draw(&self, frame: &mut Frame) {
+    fn draw(&mut self, frame: &mut Frame) {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
 
         if self.format_display.hidden {
             let display = Layout::vertical( [Constraint::Min(6), Constraint::Length(5)]).split(frame.area());
+            self.cursor.area = Some(display[0]);
 
-            frame.render_widget(self, display[0]);
             frame.render_widget(&self.format_display, display[1]);
+            frame.render_widget(&*self, display[0]);
         } else {
-            frame.render_widget(self, frame.area());
+            self.cursor.area = Some(frame.area());
+            frame.render_widget(&*self, frame.area());
         }
     }
 
@@ -293,14 +295,12 @@ pub struct State {
                                 Line::from( vec![
                                             " Quit ".into(),
                                             "<Q> ".blue().bold(),
-                                            format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , fd:{} |",
+                                            format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , fd:{}",
                                                 self.cursor.line, self.cursor.line_vis,
                                                 self.cursor.column, self.cursor.column_vis,
                                                 self.cursor.constraints().height,
                                                 self.cursor.constraints().width,
-                                                self.format_display.hidden).into(),
-                                                file_contents.lines[self.cursor.line].spans[0].clone(),
-                                                " ".into() ])
+                                                self.format_display.hidden).into() ])
                             } else {
                                 Line::from(vec![
                                             " Quit ".into(),
