@@ -8,13 +8,11 @@ use crate::Args;
 pub fn main(app: &mut State, input: Vec<String>, args: &Args) {
     if args.sample {sample(app); return}
 
-    let id: &str;
-
-    if input.len() <= 1 {
-        id = "Recent";
-    } else {
-        id = &input[1];
-    }
+    let id: &str = if input.len() <= 1 {
+                        "Recent"
+                    } else {
+                        &input[1]
+                    };
 
     let check = check_path(app, &id);
     if let Err(_) = check {
@@ -29,10 +27,6 @@ pub fn main(app: &mut State, input: Vec<String>, args: &Args) {
 
 fn check_path(app: &mut State, id: &str) -> Result<(), Box<dyn Error>> {
     let path = format!("/var/local/TBD/{id}.md");
-    
-    if let Err(e) = fs::File::open(&path) {
-        return Err(Box::new(e));
-    }
 
     app.contents = fs::read_to_string(path)?
                 .split("\n").map(|s| s.to_string()).collect();
