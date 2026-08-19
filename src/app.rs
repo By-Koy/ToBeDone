@@ -8,6 +8,7 @@ use crossterm::event::KeyModifiers;
 use crossterm::{ event::{self, Event, KeyCode} };
 use ratatui::layout::Alignment;
 use ratatui::layout::Constraint;
+use ratatui::layout::HorizontalAlignment::Center;
 use ratatui::layout::Layout;
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
@@ -128,6 +129,24 @@ struct Cursor {
 #[derive(Debug, Default)]
 struct FormatDisplay {
     hidden: bool
+} impl Widget for &FormatDisplay {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let split = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+                        .split(area);
+
+        Block::new()
+                .title_bottom("Options".blue().bold())
+                .title_alignment(Alignment::Center)
+                .render(area, buf);
+
+        let instructions_left = Text::from(vec![
+                                    "App controls (hold ctrl!)".blue().bold().into(),
+                                    "<q>".blue().bold().into()
+                        ]);
+
+        Paragraph::new(instructions_left.clone()).alignment(Center).render(split[0], buf);
+        Paragraph::new(instructions_left).alignment(Center).render(split[1], buf);
+    }
 }
 
 #[derive(Debug, Default)]
@@ -157,15 +176,10 @@ pub struct State {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
 
         if self.format_display.hidden {
-            let popup: Block = Block::new()
-                                // .borders(Borders::NONE)
-                                .title_bottom("Options".blue().bold())
-                                .title_alignment(Alignment::Center);
-
-            let display = Layout::vertical( [Constraint::Min(6), Constraint::Length(4)]).split(frame.area());
+            let display = Layout::vertical( [Constraint::Min(6), Constraint::Length(5)]).split(frame.area());
 
             frame.render_widget(self, display[0]);
-            frame.render_widget(popup, display[1]);
+            frame.render_widget(&self.format_display, display[1]);
         } else {
             frame.render_widget(self, frame.area());
         }
