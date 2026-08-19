@@ -3,12 +3,12 @@ use std::error::Error;
 use crate::file;
 use crate::Args;
 
-use crossterm::event::KeyCode::Modifier;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
 use crossterm::{ event::{self, Event, KeyCode} };
 use ratatui::layout::Alignment;
-use ratatui::widgets::Borders;
+use ratatui::layout::Constraint;
+use ratatui::layout::Layout;
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
     layout::{Position, Rect}, 
@@ -154,13 +154,15 @@ pub struct State {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
 
         if self.options_menu {
-            let popup: Block = Block::new().borders(Borders::NONE).title_bottom("Options".blue().bold()).title_alignment(Alignment::Center);
+            let popup: Block = Block::new()
+                                // .borders(Borders::NONE)
+                                .title_bottom("Options".blue().bold())
+                                .title_alignment(Alignment::Center);
 
-            frame.render_widget(self, 
-                Rect { x: 0, y: 0, width: frame.area().width, height: frame.area().height-4});
-            
-            frame.render_widget(popup, 
-                Rect { x: 0, y: frame.area().height-4, width: frame.area().width, height: 4});
+            let display = Layout::vertical( [Constraint::Min(6), Constraint::Length(4)]).split(frame.area());
+
+            frame.render_widget(self, display[0]);
+            frame.render_widget(popup, display[1]);
         } else {
             frame.render_widget(self, frame.area());
         }
