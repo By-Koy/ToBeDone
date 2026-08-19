@@ -26,20 +26,23 @@ struct Cursor {
     line: usize,
     column: usize,
 
-    constraints: Option<Rect>,
+    area: Option<Rect>
 } impl Cursor {
 
-    // Initialize constraints
-        pub fn init(&mut self, term: &mut DefaultTerminal) {
-            let area: Rect = term.get_frame().area();
-            self.constraints = Some(Rect::new(area.x, area.y, area.width-3, area.height-3));
+    // Return constraints
+        pub fn constraints(&self) -> Rect {
+        if let Some(rect) = self.area {
+                Rect::new(rect.x, rect.y, rect.width-3, rect.height-3)
+            } else {
+                Rect::new(0, 0, 0, 0)
+            }
         }
 
     // Change values directly
         pub fn add_line(&mut self, value: u16) {
             self.line+=usize::from(value);
 
-            if self.line_vis == self.constraints.unwrap().height { return }
+            if self.line_vis == self.constraints().height { return }
             
             self.line_vis+=value;
         }
@@ -62,7 +65,7 @@ struct Cursor {
         pub fn add_column(&mut self, value: u16) {
             self.column+=usize::from(value);
 
-            if self.column_vis == self.constraints.unwrap().width { return }
+            if self.column_vis == self.constraints().width { return }
 
             self.column_vis+=value;
         }
@@ -159,7 +162,6 @@ pub struct State {
     pub id: String,
 } impl State {
     pub fn run(&mut self, term: &mut DefaultTerminal, args: Args) -> Result<(), Box<dyn Error>> {
-        self.cursor.init(term);
         self.args = args;
 
         while !self.exit {
@@ -294,8 +296,8 @@ pub struct State {
                                             format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , fd:{} |",
                                                 self.cursor.line, self.cursor.line_vis,
                                                 self.cursor.column, self.cursor.column_vis,
-                                                self.cursor.constraints.unwrap().height,
-                                                self.cursor.constraints.unwrap().width,
+                                                self.cursor.constraints().height,
+                                                self.cursor.constraints().width,
                                                 self.format_display.hidden).into(),
                                                 file_contents.lines[self.cursor.line].spans[0].clone(),
                                                 " ".into() ])
