@@ -235,7 +235,7 @@ pub struct State {
 
     }
 
-    fn format_display(&mut self) {
+    fn toggle_format_display(&mut self) {
         if self.format_display.hidden { self.format_display.hidden = false }
             else { self.format_display.hidden = true }
     }
@@ -244,7 +244,7 @@ pub struct State {
         if event.modifiers == KeyModifiers::CONTROL || event.modifiers == KeyModifiers::SUPER {
             match event.code {
                 KeyCode::Char('q') => self.exit = true,
-                KeyCode::Char('a') => self.format_display(),
+                KeyCode::Char('a') => self.toggle_format_display(),
                 _ => return
             }
         }
