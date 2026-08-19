@@ -3,20 +3,23 @@ use std::error::Error;
 use crate::file;
 use crate::Args;
 
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyModifiers;
-use crossterm::{ event::{self, Event, KeyCode} };
-use ratatui::layout::Alignment;
-use ratatui::layout::Constraint;
-use ratatui::layout::HorizontalAlignment::Center;
-use ratatui::layout::Layout;
+use crossterm::
+    event::{
+    self,
+    Event,
+    KeyCode,
+    KeyEvent,
+    KeyModifiers
+};
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
-    layout::{Position, Rect}, 
+    layout::{Position, Rect, Layout, Alignment, Constraint},
+    layout::HorizontalAlignment::Center,
     style::{Stylize},
     symbols::border,
     text::{Line, Text},
-    widgets::{Block, Paragraph, Widget}
+    widgets::{Block, Paragraph, Widget},
+    prelude::{Span, Style, Color}
 };
 
 #[derive(Debug, Default)]
@@ -138,17 +141,27 @@ struct FormatDisplay {
                         .split(area);
 
         Block::new()
-                .title_bottom("Options".blue().bold())
+                .title_bottom("Options (use with control)".blue().bold())
                 .title_alignment(Alignment::Center)
                 .render(area, buf);
 
         let instructions_left = Text::from(vec![
-                                    "App controls (hold ctrl!)".blue().bold().into(),
-                                    "<q>".blue().bold().into()
+                                    "App controls".blue().bold().into(),
+                                    Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- Open this menu".into()
+                                    ]),
+                                    Line::from(vec![Span::from(" <Q> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- Quit the program".into()
+                                    ])
                         ]);
 
-        Paragraph::new(instructions_left.clone()).alignment(Center).render(split[0], buf);
-        Paragraph::new(instructions_left).alignment(Center).render(split[1], buf);
+        let instructions_right = Text::from(vec![
+                                    "Formating".blue().bold().into(),
+                                    "<BISEXUALS>".blue().bold().into()
+                        ]);
+
+        Paragraph::new(instructions_left).alignment(Center).render(split[0], buf);
+        Paragraph::new(instructions_right).alignment(Center).render(split[1], buf);
     }
 }
 
@@ -178,7 +191,7 @@ pub struct State {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
 
         if self.format_display.hidden {
-            let display = Layout::vertical( [Constraint::Min(6), Constraint::Length(5)]).split(frame.area());
+            let display = Layout::vertical( [Constraint::Min(8), Constraint::Max(6)]).split(frame.area());
             self.cursor.area = Some(display[0]);
 
             frame.render_widget(&self.format_display, display[1]);
@@ -293,9 +306,9 @@ pub struct State {
 
         let instructions = if self.args.debug {
                                 Line::from( vec![
-                                            " Quit ".into(),
-                                            "<Q> ".blue().bold(),
-                                            format!("l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , fd:{}",
+                                            " Menu ".into(),
+                                            "<ctrl+A> ".blue().bold(),
+                                            format!(" l:{}-v:{}, c:{}-v:{} - ch:{}, cw:{} , fd:{} ",
                                                 self.cursor.line, self.cursor.line_vis,
                                                 self.cursor.column, self.cursor.column_vis,
                                                 self.cursor.constraints().height,
@@ -303,8 +316,8 @@ pub struct State {
                                                 self.format_display.hidden).into() ])
                             } else {
                                 Line::from(vec![
-                                            " Quit ".into(),
-                                            "<Q> ".blue().bold() ])
+                                            " Menu ".into(),
+                                            "<A> ".blue().bold() ])
                             };
 
         let block = Block::bordered()
