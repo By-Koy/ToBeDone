@@ -11,6 +11,7 @@ use crossterm::
     KeyEvent,
     KeyModifiers
 };
+use ratatui::layout::Margin;
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
     layout::{Position, Rect, Layout, Alignment, Constraint},
@@ -137,16 +138,15 @@ struct FormatDisplay {
     hidden: bool
 } impl Widget for &FormatDisplay {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let split = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+        let usable_area = area.inner(Margin::new(1, 1));
+
+        let block_layout = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
                         .split(area);
+        
+        let usable_layout = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+                        .split(usable_area);
 
-        Block::new()
-                .title_bottom("Options (use with control)".blue().bold())
-                .title_alignment(Alignment::Center)
-                .render(area, buf);
-
-        let instructions_left = Text::from(vec![
-                                    "App controls".blue().bold().into(),
+        let instructions_app = Text::from(vec![
                                     Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
                                                             "- Open this menu".into()
                                     ]),
@@ -155,13 +155,71 @@ struct FormatDisplay {
                                     ])
                         ]);
 
-        let instructions_right = Text::from(vec![
-                                    "Formating".blue().bold().into(),
-                                    "<BISEXUALS>".blue().bold().into()
+        Block::new()
+            .title("App controls (use with CTRL)".blue().bold())
+            .title_alignment(Alignment::Center)
+            .render(block_layout[0], buf);
+
+        Paragraph::new(instructions_app).alignment(Center).render(usable_layout[0], buf);
+
+        let right = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+                        .split(usable_layout[1]);
+
+        let instructions_format = Text::from(vec![
+                                    Line::from(vec![Span::from(" <B> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- Make a line BOLD".into()
+                                    ]),
+                                    Line::from(vec![Span::from(" <I> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- ITALICISE a line".into()
+                                    ]),
+                                    Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- add a BACKGROUND to a line".into()
+                                    ]),
+                                    Line::from(vec![Span::from(" <S> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- STRIKETHROUGH the line".into()
+                                    ]),
+                                    Line::from(vec![Span::from(" <U> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- give it an UNDERLINE".into()
+                                    ]),
+                                    // TODO: figure out colouring
+                                    Line::from(vec![Span::from(" <C> ").style(Style::new().fg(Color::Blue).bold()),
+                                                            "- change the line's COLOUR".into()
+                                    ]),
                         ]);
 
-        Paragraph::new(instructions_left).alignment(Center).render(split[0], buf);
-        Paragraph::new(instructions_right).alignment(Center).render(split[1], buf);
+        Block::new()
+            .title("Formating (use with SUPER)".blue().bold())
+            .title_alignment(Alignment::Center)
+            .render(block_layout[1], buf);
+
+
+        let title = Line::from(vec![
+            "Options ".blue().bold(),
+            // Used for debugging (TODO: figure out how to use flag here)
+            // format!("area: x:{}, y:{}, usable: x:{}, y:{}, format: {}",
+            //         area.width, area.height,
+            //         usable_area.width, usable_area.height,
+            //         instructions_format.lines.len()+1).into()
+        ]);
+
+        Block::new()
+                .title_bottom(title)
+                .title_alignment(Alignment::Center)
+                .render(area, buf);
+
+        if instructions_format.lines.len() > usize::from(usable_area.height) {
+            Paragraph::new(instructions_format.clone())
+                            .alignment(Center)
+                            .render(right[0], buf);
+
+            Paragraph::new(
+                    instructions_format.lines.into_iter()
+                    .skip(usize::from(usable_area.height)).collect::<Vec<Line>>())
+                        .alignment(Center)
+                        .render(right[1], buf);
+        } else {
+            Paragraph::new(instructions_format.clone()).alignment(Center).render(usable_layout[1], buf);
+        }
     }
 }
 
@@ -170,7 +228,7 @@ pub struct State {
     exit: bool,
     format_display: FormatDisplay,
     cursor: Cursor,
-    args: Args,
+    pub args: Args,
     pub contents: Vec<String>,
     pub id: String,
 } impl State {
@@ -191,7 +249,7 @@ pub struct State {
         frame.set_cursor_position(Position::new(self.cursor.column_vis+1, self.cursor.line_vis+1));
 
         if self.format_display.hidden {
-            let display = Layout::vertical( [Constraint::Min(8), Constraint::Max(6)]).split(frame.area());
+            let display = Layout::vertical( [Constraint::Min(8), Constraint::Max(10)]).split(frame.area());
             self.cursor.area = Some(display[0]);
 
             frame.render_widget(&self.format_display, display[1]);
