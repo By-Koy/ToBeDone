@@ -352,19 +352,6 @@ pub struct State {
         let file_contents: Text = self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis))
                             .map(|s| Line::from(&s[self.cursor.column-usize::from(self.cursor.column_vis)..])).collect();
 
-        // .map(|l: Line| -> Line { match &l.to_string()[0..l.to_string().char_indices().nth(1).map(|(n, _)| {return n;}).unwrap()] {
-        //     "#b" => l.style(Color::Black),
-        //     "#B" => l.style(Color::LightBlue),
-        //     "#R" => l.style(Color::Red),
-        //     "#Y" => l.style(Color::LightYellow),
-        //     "#M" => l.style(Color::Magenta),
-        //     "#C" => l.style(Color::Cyan),
-        //     "#G" => l.style(Color::Green),
-        //     "**" => l.bold(),
-        //     "* " => l.italic(),
-        //     _ => l
-        // }})
-
         let instructions = if self.args.debug {
                                 Line::from( vec![
                                             " Menu ".into(),
