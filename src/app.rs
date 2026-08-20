@@ -194,14 +194,17 @@ struct FormatDisplay {
             .render(block_layout[1], buf);
 
 
-        let title = Line::from(vec![
-            "Options ".blue().bold(),
-            // Used for debugging (TODO: figure out how to use flag here)
-            // format!("area: x:{}, y:{}, usable: x:{}, y:{}, format: {}",
-            //         area.width, area.height,
-            //         usable_area.width, usable_area.height,
-            //         instructions_format.lines.len()+1).into()
-        ]);
+        let title  = if ARGS.lock().unwrap().debug {
+                    Line::from(vec![
+                        "Options ".blue().bold(),
+                        format!("area: x:{}, y:{}, usable: x:{}, y:{}, format: {}",
+                            area.width, area.height,
+                            usable_area.width, usable_area.height,
+                            instructions_format.lines.len()+1).into()
+                    ])
+        } else {
+            Line::from("Options ".blue().bold())
+        };
 
         Block::new()
                 .title_bottom(title)
