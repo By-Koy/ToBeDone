@@ -1,9 +1,10 @@
 use std::env;
+use std::sync::{LazyLock, Mutex};
 
 mod app;
 mod file;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Args {
     debug: bool,
     sample: bool,
@@ -32,12 +33,14 @@ pub struct Args {
     }
 }
 
+static ARGS: LazyLock<Mutex<Args>> = LazyLock::new(|| Mutex::new(Args::default()));
+
 fn main() {
-    let mut args: Args = Args::default();
-    let input: Vec<String>  = args.init(env::args().collect());
+    let input: Vec<String>  = ARGS.lock().unwrap()
+                                .init(env::args().collect());
 
     let mut app = app::State::default();
 
-    file::main(&mut app, input, &args);
-    ratatui::run(|terminal| app.run(terminal, args)).unwrap();
+    file::main(&mut app, input);
+    ratatui::run(|terminal| app.run(terminal)).unwrap();
 }

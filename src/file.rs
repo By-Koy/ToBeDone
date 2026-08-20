@@ -3,10 +3,10 @@ use std::error::Error;
 use std::os::unix::fs as unix;
 
 use crate::app::State;
-use crate::Args;
+use crate::ARGS as args;
 
-pub fn main(app: &mut State, input: Vec<String>, args: &Args) {
-    if args.sample {sample(app); return}
+pub fn main(app: &mut State, input: Vec<String>) {
+    if args.lock().unwrap().sample {sample(app); return}
 
     let id: &str = if input.len() <= 1 {
                         "Recent"

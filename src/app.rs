@@ -1,7 +1,8 @@
 use std::error::Error;
 
-use crate::file;
 use crate::Args;
+use crate::file;
+use crate::ARGS;
 
 use crossterm::
     event::{
@@ -228,13 +229,12 @@ pub struct State {
     exit: bool,
     format_display: FormatDisplay,
     cursor: Cursor,
-    pub args: Args,
+    args: Args,
     pub contents: Vec<String>,
     pub id: String,
 } impl State {
-    pub fn run(&mut self, term: &mut DefaultTerminal, args: Args) -> Result<(), Box<dyn Error>> {
-        self.args = args;
-
+    pub fn run(&mut self, term: &mut DefaultTerminal) -> Result<(), Box<dyn Error>> {
+        self.args = ARGS.lock().unwrap().clone();
         while !self.exit {
             term.draw(|frame| self.draw(frame))?;
             main(self)?;
