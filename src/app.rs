@@ -349,8 +349,7 @@ pub struct State {
 
         let title = Line::from(" ToBeDone ".bold());
 
-        let file_contents: Text = self.contents.iter().skip(self.cursor.line-usize::from(self.cursor.line_vis))
-                            .map(|s| Line::from(&s[self.cursor.column-usize::from(self.cursor.column_vis)..])).collect();
+        let file_contents: Text = self.contents.iter().map(|s| Line::from(&s[..])).collect();
 
         let instructions = if self.args.debug {
                                 Line::from( vec![
@@ -374,6 +373,7 @@ pub struct State {
                                 .border_set(border::THICK);
 
         Paragraph::new(file_contents)
+            .scroll((self.cursor.line as u16 - self.cursor.line_vis, self.cursor.column as u16 - self.cursor.column_vis))
             .block(block)
             .render(area, buf);
     }
