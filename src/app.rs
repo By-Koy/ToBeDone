@@ -332,14 +332,25 @@ pub struct State {
     }
 
     fn parse_mod(&mut self, event: KeyEvent) {
-        if event.modifiers == KeyModifiers::CONTROL || event.modifiers == KeyModifiers::SUPER {
+        if event.modifiers == KeyModifiers::CONTROL {
             match event.code {
                 KeyCode::Char('q') => self.exit = true,
                 KeyCode::Char('a') => self.toggle_format_display(),
                 _ => return
-            }
+            };
+
+        } else if event.modifiers == KeyModifiers::ALT {
+            match event.code {
+                KeyCode::Char('b') => self.bold(),
+                _ => return
+            };
+
         }
 
+    }
+
+    fn bold(&mut self) {
+        
     }
 
 } impl Widget for &State {
