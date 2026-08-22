@@ -139,6 +139,8 @@ struct FormatDisplay {
     hidden: bool
 } impl Widget for &FormatDisplay {
     fn render(self, area: Rect, buf: &mut Buffer) {
+
+        // Divide the area
         let usable_area = area.inner(Margin::new(1, 1));
 
         let block_layout = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
@@ -147,6 +149,7 @@ struct FormatDisplay {
         let usable_layout = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
                         .split(usable_area);
 
+        // Display app controls
         let instructions_app = Text::from(vec![
                                     Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
                                                             "- Open this menu".into()
@@ -163,6 +166,13 @@ struct FormatDisplay {
 
         Paragraph::new(instructions_app).alignment(Center).render(usable_layout[0], buf);
 
+        // Display fromating controls
+        Block::new()
+            .title("Formating (use with SUPER)".blue().bold())
+            .title_alignment(Alignment::Center)
+            .render(block_layout[1], buf);
+
+        // (subdivide the right side if needed)
         let right = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
                         .split(usable_layout[1]);
 
@@ -174,7 +184,7 @@ struct FormatDisplay {
                                                             "- ITALICISE a line".into()
                                     ]),
                                     Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- add a BACKGROUND to a line".into()
+                                                            "- add a BACKGROUND".into()
                                     ]),
                                     Line::from(vec![Span::from(" <S> ").style(Style::new().fg(Color::Blue).bold()),
                                                             "- STRIKETHROUGH the line".into()
@@ -182,36 +192,9 @@ struct FormatDisplay {
                                     Line::from(vec![Span::from(" <U> ").style(Style::new().fg(Color::Blue).bold()),
                                                             "- give it an UNDERLINE".into()
                                     ]),
-                                    // TODO: figure out colouring
-                                    Line::from(vec![Span::from(" <C> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- change the line's COLOUR".into()
-                                    ]),
                         ]);
 
-        Block::new()
-            .title("Formating (use with SUPER)".blue().bold())
-            .title_alignment(Alignment::Center)
-            .render(block_layout[1], buf);
-
-
-        let title  = if ARGS.lock().unwrap().debug {
-                    Line::from(vec![
-                        "Options ".blue().bold(),
-                        format!("area: x:{}, y:{}, usable: x:{}, y:{}, format: {}",
-                            area.width, area.height,
-                            usable_area.width, usable_area.height,
-                            instructions_format.lines.len()+1).into()
-                    ])
-        } else {
-            Line::from("Options ".blue().bold())
-        };
-
-        Block::new()
-                .title_bottom(title)
-                .title_alignment(Alignment::Center)
-                .render(area, buf);
-
-        if instructions_format.lines.len() > usize::from(usable_area.height) {
+        if &instructions_format.lines.len() > &usize::from(usable_area.height) {
             Paragraph::new(instructions_format.clone())
                             .alignment(Center)
                             .render(right[0], buf);
@@ -224,6 +207,22 @@ struct FormatDisplay {
         } else {
             Paragraph::new(instructions_format.clone()).alignment(Center).render(usable_layout[1], buf);
         }
+
+        let title  = if ARGS.lock().unwrap().debug {
+                    Line::from(vec![
+                        "Options ".blue().bold(),
+                        format!("area: x:{}, y:{}, usable: x:{}, y:{}",
+                            area.width, area.height,
+                            usable_area.width, usable_area.height).into()
+                    ])
+        } else {
+            Line::from("Options ".blue().bold())
+        };
+
+        Block::new()
+                .title_bottom(title)
+                .title_alignment(Alignment::Center)
+                .render(area, buf);
     }
 }
 
