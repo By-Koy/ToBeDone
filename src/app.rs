@@ -283,7 +283,7 @@ pub struct State<'a> {
     fn new_line(&mut self) {
         let remainder: Vec<Span> = self.contents.lines[self.cursor.line].clone().into_iter().skip(usize::from(self.cursor.column)).collect();
 
-        self.contents.lines[self.cursor.line].spans.drain(self.cursor.column..).collect::<Vec<Span>>();
+        self.contents.lines[self.cursor.line] = self.contents.lines[self.cursor.line].spans.drain(self.cursor.column..).collect::<Line>();
         self.contents.lines.insert(self.cursor.line+1, Line::from(remainder));
 
         self.move_cursor(KeyCode::Down);
@@ -307,9 +307,9 @@ pub struct State<'a> {
 
         let len: u16 = if self.cursor.line == 0 || self.cursor.line == file_len { 0
                 } else if direction == KeyCode::Down {
-                    self.contents.lines[self.cursor.line+1].iter().len().try_into().unwrap()
+                    self.contents.lines[self.cursor.line+1].spans.len().try_into().unwrap()
                 } else {
-                    self.contents.lines[usize::from(self.cursor.line-1)].iter().len().try_into().unwrap()
+                    self.contents.lines[self.cursor.line-1].spans.len().try_into().unwrap()
                 };
 
         if direction == KeyCode::Left && self.cursor.column == 0 { self.cursor.collapse_left(len); return }

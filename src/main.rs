@@ -6,6 +6,7 @@ mod file;
 
 #[derive(Debug, Default, Clone)]
 pub struct Args {
+    reset: bool,
     debug: bool,
     sample: bool,
     no_eggs: bool,
@@ -16,6 +17,7 @@ pub struct Args {
         let args: Vec<String> = input.clone().into_iter().filter(|s| s.starts_with("--")).collect();
         for arg in args {
             match &*arg {
+                "--reset" => self.reset=true,
                 "--debug" => self.debug=true,
                 "--sample" => self.sample=true,
                 "--no-eggs" => self.no_eggs=true,
@@ -25,6 +27,7 @@ pub struct Args {
 
         if self.other.len() > 0 { println!("Unknown argument(s) {:?}.
                                             \nPossible arguments are:
+                                            \n--reset - delete all notes (requires sudo)
                                             \n --debug - show debuging vars,
                                             \n --sample - make sample.md with provided sample text,
                                             \n --no-eggs - no eggs\n", self.other)}

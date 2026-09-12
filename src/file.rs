@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::Path;
 use std::error::Error;
 use std::os::unix::fs as unix;
 
@@ -9,8 +10,11 @@ use ratatui::prelude::{
 use crate::app::State;
 use crate::ARGS as args;
 
+const PATH: &str  = "/var/local/TBD";
+
 pub fn main(app: &mut State, input: Vec<String>) {
     if args.lock().unwrap().sample {sample(app); return}
+    else if args.lock().unwrap().reset {let _ = reset(); return}
 
     let id: &str = if input.len() <= 1 {
                         "Recent"
@@ -20,7 +24,7 @@ pub fn main(app: &mut State, input: Vec<String>) {
 
     let check = check_path(app, &id);
     if let Err(_) = check {
-        fs::write(format!("/var/local/TBD/{id}.md"), format!("**{id}**"))
+        fs::write(Path::new(&format!("{PATH}/{id}.md")), format!("**{id}**"))
             .expect("unable to create/write to file, please check permissions.");
 
         app.contents = Text::from(Line::from(id.chars().map(|c| Span::raw(c.to_string())).collect::<Vec<Span>>()).bold());
@@ -30,9 +34,8 @@ pub fn main(app: &mut State, input: Vec<String>) {
 }
 
 fn check_path(app: &mut State, id: &str) -> Result<(), Box<dyn Error>> {
-    let path = format!("/var/local/TBD/{id}.md");
 
-    app.contents = fs::read_to_string(path)?
+    app.contents = fs::read_to_string(Path::new(&format!("{PATH}/{id}.md")))?
                 .split("\n").map(|s| s.to_string()).collect();
     app.id = String::from(id);
 
@@ -55,20 +58,46 @@ fn sample(app: &mut State) {
 }
 
 pub fn exit(app: &State) {
-    let path = format!("/var/local/TBD/{}.md", &app.id);
     if app.contents.lines.is_empty()  {
         println!("Empty file!");
-        fs::remove_file(&path)
+        fs::remove_file(Path::new(&format!("{PATH}/{}.md", &app.id)))
             .expect("unable to remove note, please check permissions");
     } else if app.id != "Recent" {
-        fs::remove_file("/var/local/TBD/Recent.md")
+        fs::remove_file(Path::new(&format!("{PATH}/Recent.md")))
             .expect("unable to remove old symlink, please check permissions");
 
-        unix::symlink(&path, "/var/local/TBD/Recent.md")
+        unix::symlink(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
             .expect("unable to create symlink, please check permissions");
     }
 
     let write: String = app.contents.to_string();
-    fs::write(&path, write)
+    fs::write(Path::new(&format!("{PATH}/{}.md", &app.id)), write)
         .expect("unable to create/write to file, please check permissions.");
+}
+
+pub fn reset() -> Result<(), Box<dyn std::error::Error>> {
+    println!("Are you sure that you would like to remove notes? (Y/N)");
+    let mut input = String::new();
+    let _ = std::io::stdin().read_line(&mut input);
+    let reset: bool = match &*input {
+        "Y\n" |
+        "y\n" |
+      "yes\n" |
+      "Yes\n" => true,
+        "N\n" |
+        "n\n" |
+       "no\n" |
+       "No\n" => false,
+            _ => false
+    };
+
+    if reset {
+
+        let files = fs::read_dir(Path::new(PATH)).expect("Folder seems empty!");
+        for file in files {
+            fs::remove_file(file.unwrap().path())?;
+        }
+    }
+
+    std::process::exit(0);
 }
