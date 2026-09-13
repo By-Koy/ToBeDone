@@ -2,9 +2,9 @@
 **A cross-platform TUI note-taking app**
 
 ## Quick-start
-**Linux/Macos (anything UNIX-like really)**\
-``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/install.sh | zsh ``
-###### (Requires ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
+  **Linux/Macos (anything UNIX-like really)**\
+  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
+  ###### (Requires ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
 **Windows**\
 Coming soon!
@@ -17,11 +17,13 @@ Coming soon!
 - [x] **Runs quickly and efficiently** right in your terminal.
 - [x] **Written in Rust** ;P
 
-## Install
-**Install script**
-Under construction!
+## Installation
+### Install script
+**Linux/Macos (anything UNIX-like really)**\
+  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
+  ###### (Requires ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
-**Testing (currently linux/macos only)**\
+### Testing (currently linux/macos only)\
 These commands build the portable version of the app.\
 It will be put in your Downloads folder and requires a folder named TBD to be put in the same directory.
 ```
@@ -31,6 +33,11 @@ git clone https://github.com/By-Koy/ToBeDone.git && cd ToBeDone
 ###### (requires a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
 Alternatively, you may use the pre-built binaries in the latest release
+
+## Uninstallation
+**Linux/Macos (anything UNIX-like really)**\
+  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/uninstall.sh | zsh ``
+  ###### (Requires ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
 ## A few technical considerations
 The project it built with Rust and Ratatui to maximize efficiency of both the program and development, and to help me learn and get comfortable with a new library.\
