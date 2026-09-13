@@ -305,8 +305,8 @@ pub struct State<'a> {
         let line_len: usize = usize::from(self.contents.lines[self.cursor.line].iter().len());
         let file_len: usize = self.contents.lines.len()-1;
 
-        let len: u16 = if self.cursor.line == 0 || self.cursor.line == file_len { 0
-                } else if direction == KeyCode::Down {
+        let len: u16 = if self.cursor.line == 0 { 0
+                } else if direction == KeyCode::Down && !self.cursor.line == file_len {
                     self.contents.lines[self.cursor.line+1].spans.len().try_into().unwrap()
                 } else {
                     self.contents.lines[self.cursor.line-1].spans.len().try_into().unwrap()
