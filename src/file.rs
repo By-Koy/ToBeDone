@@ -2,9 +2,9 @@ use std::fs;
 use std::path::Path;
 use std::error::Error;
 #[cfg(target_family = "unix")]
-use std::os::unix::fs as unix;
+    use std::os::unix::fs as unix;
 #[cfg(target_family = "windows")]
-use std::os::windows::fs as windows;
+    use std::os::windows::fs as windows;
 
 use ratatui::prelude::{
             text::{Text, Line, Span},
@@ -68,19 +68,20 @@ pub fn exit(app: &State) {
         fs::remove_file(Path::new(&format!("{PATH}/{}.md", &app.id)))
             .expect("unable to remove note, please check permissions");
 
-    fs::write(Path::new(&format!("{PATH}/{}.md", &app.id)), app.contents.to_string())
-        .expect("unable to create/write to file, please check permissions.");
-
     } else if app.id != "Recent" {
         let _ = fs::remove_file(Path::new(&format!("{PATH}/Recent.md")));
 
         #[cfg(target_family = "unix")]
-        unix::symlink(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
-            .expect("unable to create symlink, please check permissions");
+            unix::symlink(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
+                .expect("unable to create symlink, please check permissions");
         #[cfg(target_family = "windows")]
-        windows::symlink_file(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
-            .expect("unable to create symlink, please check permissions");
+            windows::symlink_file(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
+                .expect("unable to create symlink, please check permissions");
     }
+    
+    fs::write(Path::new(&format!("{PATH}/{}.md", &app.id)), app.contents.iter().map(|l| l.to_string()+"\n").collect::<Vec<String>>()
+                                                                        .into_iter().collect::<String>())
+            .expect("unable to create/write to file, please check permissions.");
 }
 
 pub fn reset() -> Result<(), Box<dyn std::error::Error>> {
