@@ -13,4 +13,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: ./build_portable.sh
+      run: TBD_NOTES_HOME="." ./build_portable.sh
