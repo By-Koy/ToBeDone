@@ -10,7 +10,10 @@ use ratatui::prelude::{
 use crate::app::State;
 use crate::ARGS as args;
 
-const PATH: &str  = "/var/local/TBD";
+#[cfg(target_family = "unix")]
+static PATH: &str  = concat!(env!("XDG_DATA_HOME"), "/TBD");
+#[cfg(target_family = "windows")]
+static PATH: &str = concat!(env!("LOCALAPPDATA")+"/TBD");
 
 pub fn main(app: &mut State, input: Vec<String>) {
     if args.lock().unwrap().sample {sample(app); return}
@@ -59,20 +62,18 @@ fn sample(app: &mut State) {
 
 pub fn exit(app: &State) {
     if app.contents.lines.is_empty()  {
-        println!("Empty file!");
         fs::remove_file(Path::new(&format!("{PATH}/{}.md", &app.id)))
             .expect("unable to remove note, please check permissions");
+
+    fs::write(Path::new(&format!("{PATH}/{}.md", &app.id)), app.contents.to_string())
+        .expect("unable to create/write to file, please check permissions.");
+
     } else if app.id != "Recent" {
-        fs::remove_file(Path::new(&format!("{PATH}/Recent.md")))
-            .expect("unable to remove old symlink, please check permissions");
+        let _ = fs::remove_file(Path::new(&format!("{PATH}/Recent.md")));
 
         unix::symlink(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
             .expect("unable to create symlink, please check permissions");
     }
-
-    let write: String = app.contents.to_string();
-    fs::write(Path::new(&format!("{PATH}/{}.md", &app.id)), write)
-        .expect("unable to create/write to file, please check permissions.");
 }
 
 pub fn reset() -> Result<(), Box<dyn std::error::Error>> {
@@ -93,7 +94,7 @@ pub fn reset() -> Result<(), Box<dyn std::error::Error>> {
 
     if reset {
 
-        let files = fs::read_dir(Path::new(PATH)).expect("Folder seems empty!");
+        let files = fs::read_dir(Path::new(&PATH)).expect("Folder seems empty");
         for file in files {
             fs::remove_file(file.unwrap().path())?;
         }
