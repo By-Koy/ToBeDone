@@ -20,14 +20,15 @@ else
     sudo -k # make sure to ask for password on next sudo ✱
     if sudo true; then
     else
-        echo "Wrong Password (or are you unable to use sudo?)"
+        echo "Script requires sudo"
         exit 1
     fi
 fi
 
 # Install the app
-cp target/release/ToBeDone /usr/local/bin/
+sudo cp target/release/ToBeDone /usr/local/bin/
 mkdir $XDG_DATA_HOME/TBD
 
 # Clean up
-rm -rf .
+cd ..
+rm -rf ./ToBeDone
