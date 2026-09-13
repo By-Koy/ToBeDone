@@ -3,7 +3,8 @@
 
 ## Quick-start
 **Linux/Macos (anything UNIX-like really)**\
-``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/install.sh | sh``
+``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/install.sh | zsh ``
+###### (Requires ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
 **Windows**\
 Coming soon!
@@ -21,14 +22,15 @@ Coming soon!
 Under construction!
 
 **Testing (currently linux/macos only)**\
-Currently notes have to be hosted at $XDG_DATA_DIR or %LOCALAPPDATA% depending on OS
-Since I have yet to test it instructions for windows are not yet available
+These commands build the portable version of the app.\
+It will be put in your Downloads folder and requires a folder named TBD to be put in the same directory.
 ```
-git clone https://github.com/By-Koy/ToBeDone.git
-sudo mkdir -p &XDG_DATA_HOME/TBD
-cd ToBeDone && cargo run -- --sample
+git clone https://github.com/By-Koy/ToBeDone.git && cd ToBeDone
+./build_portable.sh
 ```
-(requires a full [rust](https://rust-lang.org/tools/install/) install and git)
+###### (requires a full [Rust](https://rust-lang.org/tools/install/) install and Git)
+
+Alternatively, you may use the pre-built binaries in the latest release
 
 ## A few technical considerations
 The project it built with Rust and Ratatui to maximize efficiency of both the program and development, and to help me learn and get comfortable with a new library.\

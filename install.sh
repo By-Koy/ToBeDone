@@ -2,7 +2,9 @@
 
 # Check whether XDG_DATA_HOME is set and use fallback
 if [[ -z $XDG_DATA_HOME ]]; then
-export XDG_DATA_HOME="$HOME/.local/share"
+    export TBD_NOTES_HOME="$HOME/.local/share"
+else
+    export TBD_NOTES_HOME="$XDG_DATA_HOME"
 fi
 
 # Clone the repo and build
@@ -27,7 +29,7 @@ fi
 
 # Install the app
 sudo cp target/release/ToBeDone /usr/local/bin/
-mkdir $XDG_DATA_HOME/TBD
+mkdir $TBD_NOTES_HOME/TBD
 
 # Clean up
 cd ..

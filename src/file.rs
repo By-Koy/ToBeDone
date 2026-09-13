@@ -13,10 +13,7 @@ use ratatui::prelude::{
 use crate::app::State;
 use crate::ARGS as args;
 
-#[cfg(target_family = "unix")]
-static PATH: &str  = concat!(env!("XDG_DATA_HOME"), "/TBD");
-#[cfg(target_family = "windows")]
-static PATH: &str = concat!(env!("LOCALAPPDATA")+"/TBD");
+static PATH: &str  = concat!(env!("TBD_NOTES_HOME"), "/TBD");
 
 pub fn main(app: &mut State, input: Vec<String>) {
     if args.lock().unwrap().sample {sample(app); return}
@@ -78,7 +75,7 @@ pub fn exit(app: &State) {
             windows::symlink_file(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
                 .expect("unable to create symlink, please check permissions");
     }
-    
+
     fs::write(Path::new(&format!("{PATH}/{}.md", &app.id)), app.contents.iter().map(|l| l.to_string()+"\n").collect::<Vec<String>>()
                                                                         .into_iter().collect::<String>())
             .expect("unable to create/write to file, please check permissions.");
