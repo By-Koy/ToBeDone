@@ -1,7 +1,10 @@
 use std::fs;
 use std::path::Path;
 use std::error::Error;
+#[cfg(target_family = "unix")]
 use std::os::unix::fs as unix;
+#[cfg(target_family = "windows")]
+use std::os::windows::fs as windows;
 
 use ratatui::prelude::{
             text::{Text, Line, Span},
@@ -71,7 +74,11 @@ pub fn exit(app: &State) {
     } else if app.id != "Recent" {
         let _ = fs::remove_file(Path::new(&format!("{PATH}/Recent.md")));
 
+        #[cfg(target_family = "unix")]
         unix::symlink(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
+            .expect("unable to create symlink, please check permissions");
+        #[cfg(target_family = "windows")]
+        windows::symlink_file(Path::new(&format!("{PATH}/{}.md", &app.id)), Path::new(&format!("{PATH}/Recent.md")))
             .expect("unable to create symlink, please check permissions");
     }
 }
