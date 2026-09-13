@@ -2,8 +2,11 @@
 **A cross-platform TUI note-taking app**
 
 ## Quick-start
-**Coming soon!!**\
-For now, please look at the testing instructions!
+**Linux/Macos (anything UNIX-like really)**\
+``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/install.sh | sh``
+
+**Windows**\
+Coming soon!
 
 ## Features (and to-do list)
 - [ ] **Styling support** - A screen to enable styling and formating. this is instead of markdown which I sadly couldn't figure out :sadge
@@ -17,14 +20,15 @@ For now, please look at the testing instructions!
 **Install script**
 Under construction!
 
-**Testing (currently linux/macos only)**
-For faster development, currently the only way to use the program is by hosting notes at ``/var/local/TBD``, when windows support will be added a --path flag will be added to choose where notes are stored so that superuser privileges are not required for testing.
+**Testing (currently linux/macos only)**\
+Currently notes have to be hosted at $XDG_DATA_DIR or %LOCALAPPDATA% depending on OS
+Since I have yet to test it instructions for windows are not yet available
 ```
 git clone https://github.com/By-Koy/ToBeDone.git
-sudo mkdir -p /var/local/TBD && sudo chmod 777 /var/local/TBD
+sudo mkdir -p &XDG_DATA_HOME/TBD
 cd ToBeDone && cargo run -- --sample
 ```
-(requires a full [rust](https://rust-lang.org/tools/install/) install)
+(requires a full [rust](https://rust-lang.org/tools/install/) install and git)
 
 ## A few technical considerations
 The project it built with Rust and Ratatui to maximize efficiency of both the program and development, and to help me learn and get comfortable with a new library.\
@@ -38,5 +42,7 @@ I don't think a cooler non-profit exists.
 Thanks to Ren Gill ([RenMakesMusic](https://www.renmakesmusic.com/)) for the quote used in the sample text.
 
 This project is protected by the GNU GPL license, for more information please visit the LICENSE file.
+
+Thanks to StackOverflow user Socowi for the sudo code used in the install/uninstall scripts (for more info visit those files)
 
 Made with love, by Koy.
