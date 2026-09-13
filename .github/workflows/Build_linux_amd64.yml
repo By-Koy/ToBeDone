@@ -9,7 +9,8 @@ jobs:
   build:
     defaults:
       run:
-        working-directory: .
+        shell: zsh
+        working-directory: ./scripts
 
     runs-on: ubuntu-latest
 
