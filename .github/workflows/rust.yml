@@ -59,7 +59,7 @@ jobs:
       if: success()
       with:
        name: Windows-x86_64-portable
-       path: target/release/ToBeDone
+       path: target/release/ToBeDone.exe
 
   Macos-x86_64:
 
