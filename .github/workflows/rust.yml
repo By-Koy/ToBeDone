@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
     - name: Build
-      run: cargo build
+      run: cargo build --release
 
 
     - name: upload artifacts
@@ -34,7 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
     - name: Build
-      run: cargo build
+      run: cargo build --release
 
 
     - name: upload artifacts
@@ -51,7 +51,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
     - name: Build
-      run: cargo build
+      run: cargo build --release
 
 
     - name: upload artifacts
@@ -68,7 +68,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
     - name: Build
-      run: cargo build
+      run: cargo build --release
 
     - name: upload artifacts
       uses: actions/upload-artifact@v7.0.1
@@ -84,7 +84,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
     - name: Build
-      run: cargo build
+      run: cargo build --release
 
     - name: upload artifacts
       uses: actions/upload-artifact@v7.0.1
