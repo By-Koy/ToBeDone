@@ -25,7 +25,7 @@ jobs:
       if: success()
       with:
        name: Linux-x86_64-portable
-       path: /target/release/ToBeDone*
+       path: /target/release/ToBeDone
 
   Linx-aarch64:
 
@@ -42,7 +42,7 @@ jobs:
       if: success()
       with:
        name: Linux-aarch64-portable
-       path: /target/release/ToBeDone*
+       path: /target/release/ToBeDone
 
   Windows-x86_64:
 
@@ -59,7 +59,7 @@ jobs:
       if: success()
       with:
        name: Windows-x86_64-portable
-       path: /target/release/ToBeDone*
+       path: /target/release/ToBeDone
 
   Macos-x86_64:
 
@@ -75,7 +75,7 @@ jobs:
       if: success()
       with:
        name: Macos-x86_64-portable
-       path: /target/release/ToBeDone*
+       path: /target/release/ToBeDone
 
   Macos-aarch64:
 
@@ -91,5 +91,5 @@ jobs:
       if: success()
       with:
        name: Macos-aarch64-portable
-       path: /target/release/ToBeDone*
+       path: /target/release/ToBeDone
 
