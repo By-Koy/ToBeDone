@@ -140,17 +140,8 @@ struct FormatDisplay {
 } impl Widget for &FormatDisplay {
     fn render(self, area: Rect, buf: &mut Buffer) {
 
-        // Divide the area
-        let usable_area = area.inner(Margin::new(1, 1));
-
-        let block_layout = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
-                        .split(area);
-        
-        let usable_layout = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
-                        .split(usable_area);
-
         // Display app controls
-        let instructions_app = Text::from(vec![
+        let instructions_app = Text::from(vec![ Line::from("App controls (use with CTRL)".blue().bold()),
                                     Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
                                                             "- Open this menu".into()
                                     ]),
@@ -159,70 +150,8 @@ struct FormatDisplay {
                                     ])
                         ]);
 
-        Block::new()
-            .title("App controls (use with CTRL)".blue().bold())
-            .title_alignment(Alignment::Center)
-            .render(block_layout[0], buf);
+        Paragraph::new(instructions_app).alignment(Center).render(area, buf);
 
-        Paragraph::new(instructions_app).alignment(Center).render(usable_layout[0], buf);
-
-        // Display fromating controls
-        Block::new()
-            .title("Formating (use with SUPER)".blue().bold())
-            .title_alignment(Alignment::Center)
-            .render(block_layout[1], buf);
-
-        // (subdivide the right side if needed)
-        let right = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
-                        .split(usable_layout[1]);
-
-        let instructions_format = Text::from(vec![
-                                    Line::from(vec![Span::from(" <B> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- Make a line BOLD".into()
-                                    ]),
-                                    Line::from(vec![Span::from(" <I> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- ITALICISE a line".into()
-                                    ]),
-                                    Line::from(vec![Span::from(" <A> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- add a BACKGROUND".into()
-                                    ]),
-                                    Line::from(vec![Span::from(" <S> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- STRIKETHROUGH the line".into()
-                                    ]),
-                                    Line::from(vec![Span::from(" <U> ").style(Style::new().fg(Color::Blue).bold()),
-                                                            "- give it an UNDERLINE".into()
-                                    ]),
-                        ]);
-
-        if &instructions_format.lines.len() > &usize::from(usable_area.height) {
-            Paragraph::new(instructions_format.clone())
-                            .alignment(Center)
-                            .render(right[0], buf);
-
-            Paragraph::new(
-                    instructions_format.lines.into_iter()
-                    .skip(usize::from(usable_area.height)).collect::<Vec<Line>>())
-                        .alignment(Center)
-                        .render(right[1], buf);
-        } else {
-            Paragraph::new(instructions_format.clone()).alignment(Center).render(usable_layout[1], buf);
-        }
-
-        let title  = if ARGS.lock().unwrap().debug {
-                    Line::from(vec![
-                        "Options ".blue().bold(),
-                        format!("area: x:{}, y:{}, usable: x:{}, y:{}",
-                            area.width, area.height,
-                            usable_area.width, usable_area.height).into()
-                    ])
-        } else {
-            Line::from("Options ".blue().bold())
-        };
-
-        Block::new()
-                .title_bottom(title)
-                .title_alignment(Alignment::Center)
-                .render(area, buf);
     }
 }
 
@@ -339,18 +268,7 @@ pub struct State<'a> {
                 _ => return
             };
 
-        } else if event.modifiers == KeyModifiers::ALT {
-            match event.code {
-                KeyCode::Char('b') => self.bold(),
-                _ => return
-            };
-
         }
-
-    }
-
-    fn bold(&mut self) {
-
     }
 
 } impl<'a> Widget for &State<'a> {

@@ -9,7 +9,6 @@ pub struct Args {
     reset: bool,
     debug: bool,
     sample: bool,
-    no_eggs: bool,
     other: Vec<String>
 } impl Args {
 
@@ -20,17 +19,16 @@ pub struct Args {
                 "--reset" => self.reset=true,
                 "--debug" => self.debug=true,
                 "--sample" => self.sample=true,
-                "--no-eggs" => self.no_eggs=true,
                 _ => self.other.push(arg)
             };
         }
 
         if self.other.len() > 0 { println!("Unknown argument(s) {:?}.
-                                            \nPossible arguments are:
-                                            \n--reset - delete all notes (requires sudo)
-                                            \n --debug - show debuging vars,
-                                            \n --sample - make sample.md with provided sample text,
-                                            \n --no-eggs - no eggs\n", self.other)}
+                                          \nPossible arguments are:
+                                          \n --reset - delete all notes (requires sudo)
+                                          \n --debug - show debuging vars,
+                                          \n --sample - make sample.md with provided sample text,
+                                          \n", self.other)}
 
         input.into_iter().filter(|s| !s.starts_with("--")).collect()
     }
