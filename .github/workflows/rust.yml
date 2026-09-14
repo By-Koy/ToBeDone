@@ -1,0 +1,95 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  
+  release:
+
+env:
+  CARGO_TERM_COLOR: always
+  TBD_NOTES_HOME: "."
+
+jobs:
+  Linux-x86_64:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build
+
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v7.0.1
+      if: success()
+      with:
+       name: Linux-x86_64-portable
+       path: target/release/ToBeDone*
+
+  Linx-aarch64:
+
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build
+
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v7.0.1
+      if: success()
+      with:
+       name: Linux-aarch64-portable
+       path: target/release/ToBeDone*
+
+  Windows-x86_64:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build
+
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v7.0.1
+      if: success()
+      with:
+       name: Windows-x86_64-portable
+       path: target/release/ToBeDone*
+
+  Macos-x86_64:
+
+    runs-on: macos-26-intel
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v7.0.1
+      if: success()
+      with:
+       name: Macos-x86_64-portable
+       path: target/release/ToBeDone*
+
+  Macos-aarch64:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: cargo build
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v7.0.1
+      if: success()
+      with:
+       name: Macos-aarch64-portable
+       path: target/release/ToBeDone*
+
