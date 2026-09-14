@@ -54,7 +54,7 @@ fn sample(app: &mut State) {
                         Line::from(" And I must not forget,".to_string().chars().map(|c| Span::raw(c.to_string())).collect::<Vec<Span>>()),
                         Line::from(" We must not forget,".to_string().chars().map(|c| Span::raw(c.to_string())).collect::<Vec<Span>>()),
                         Line::from(" That we are human-beings.\"".to_string().chars().map(|c| Span::raw(c.to_string())).collect::<Vec<Span>>()),
-                        Line::from("     --Ren Gill".to_string().chars().map(|c| Span::raw(c.to_string())).collect::<Vec<Span>>()) ));
+                        Line::from("     --Ren Gill, 2022".to_string().chars().map(|c| Span::raw(c.to_string())).collect::<Vec<Span>>()) ));
 
     app.contents = sample_text;
     app.id = "Sample".to_string();
