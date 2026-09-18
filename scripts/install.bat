@@ -1,10 +1,10 @@
-set TBD_NOTES_HOME=%LOCALAPPDATA%
+SET TBD_NOTES_HOME=%LOCALAPPDATA%
 
 git clone https://github.com/By-Koy/ToBeDone.git
-cd ToBeDone
+CD ToBeDone
 cargo build --release
 
-xcopy target\release\ToBeDone.exe %PROGRAMFILES%\TBD\
+XCOPY target\release\ToBeDone.exe %PROGRAMFILES%\TBD\
 MD %LOCALAPPDATA%\TBD
-cd ..
+CD ..
 RMDIR ToBeDone
