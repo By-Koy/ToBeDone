@@ -12,10 +12,10 @@ use crossterm::
     KeyEvent,
     KeyModifiers
 };
-use ratatui::layout::Margin;
+
 use ratatui::{
     DefaultTerminal, Frame, buffer::Buffer,
-    layout::{Position, Rect, Layout, Alignment, Constraint},
+    layout::{Position, Rect, Layout, Constraint},
     layout::HorizontalAlignment::Center,
     style::{Stylize},
     symbols::border,
