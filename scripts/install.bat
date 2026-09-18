@@ -5,4 +5,4 @@ CD ToBeDone
 cargo build --release && XCOPY target\release\ToBeDone.exe %PROGRAMFILES%\TBD\ && MD %LOCALAPPDATA%\TBD
 
 CD ..
-RMDIR ToBeDone
+RMDIR /s /q ToBeDone
