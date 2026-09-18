@@ -23,7 +23,7 @@ The easiest way to use the app on Windows is to download the portable .exe from 
   ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
   ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
-### Testing (currently linux/macos only)\
+### Testing (currently linux/macos only)
 These commands build the portable version of the app.\
 It will be put in your Downloads folder and requires a folder named TBD to be put in the same directory.
 ```
