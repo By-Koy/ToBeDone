@@ -9,25 +9,6 @@ SETLOCAL
 SET "TBD_NOTES_HOME=%LOCALAPPDATA%"
 
 REM --------------------------------------------------
-REM Check whether Program Files is writable
-REM --------------------------------------------------
-
-IF NOT EXIST "%INSTALL_DIR%" (
-    MD "%INSTALL_DIR%" 2>NUL
-
-    IF ERRORLEVEL 1 (
-        ECHO ERROR: Cannot create:
-        ECHO   "%INSTALL_DIR%"
-        ECHO.
-        ECHO The installer probably does not have permission to write
-        ECHO to Program Files.
-        ECHO.
-        ECHO Try running this installer as Administrator.
-        EXIT /B 1
-    )
-)
-
-REM --------------------------------------------------
 REM Clone repository
 REM --------------------------------------------------
 

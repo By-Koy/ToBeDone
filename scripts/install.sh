@@ -22,7 +22,7 @@ if [[ "$EUID" = 0 ]]; then
 else
     sudo -k # make sure to ask for password on next sudo ✱
     if sudo true; then
-    true
+        true
     else
         echo "Script requires sudo"
         exit 1

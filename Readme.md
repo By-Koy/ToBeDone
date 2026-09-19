@@ -36,6 +36,11 @@ git clone https://github.com/By-Koy/ToBeDone.git && cd ToBeDone
   ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/uninstall.sh | zsh ``
   ###### (Requires ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
+**Windows (10 or 11)**\
+  Run this in an administrator command prompt (required to write to program-files and local-app-data)
+  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/uninstall.bat -o "%temp%\install.bat" && "%temp%\install.bat"  ``
+  ###### (Requires curl, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
+
 ## A few technical considerations
 The project it built with Rust and Ratatui to maximize efficiency of both the program and development, and to help me learn and get comfortable with a new library.\
 I decided to use the Crossterm backend for mostly the same reasons, as well as it seaming like the easiest to use and the mot compatible of all the options easily accessible from Ratatui.\
