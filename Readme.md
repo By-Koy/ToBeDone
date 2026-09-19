@@ -23,6 +23,10 @@ The easiest way to use the app on Windows is to download the portable .exe from 
   ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
   ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
+**Windows (10 or 11)**\
+  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.bat -o "%temp%\install.bat" && "%temp%\install.bat"  ``
+  ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
+
 ### Testing (currently linux/macos only)
 These commands build the portable version of the app.\
 It will be put in your Downloads folder and requires a folder named TBD to be put in the same directory.
@@ -54,6 +58,8 @@ Thanks to Ren Gill ([RenMakesMusic](https://www.renmakesmusic.com/)) for the quo
 
 This project is protected by the GNU GPL license, for more information please visit the LICENSE file.
 
-Thanks to StackOverflow user Socowi for the sudo code used in the install/uninstall scripts (for more info visit those files)
+Thanks to StackOverflow user Socowi for the sudo code used in the install/uninstall scripts for unix. (for more info visit those files)
+
+Thanks to Nadav Babad (Github: @BlazingHotCode) for creating the windows install.bat script.
 
 Made with love, by Koy.
