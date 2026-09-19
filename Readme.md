@@ -4,7 +4,7 @@
 ## Quick-start
 **Linux/Macos (anything UNIX-like really)**\
   ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
-  ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
+  ###### (Requires curl, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
 **Windows (10 or 11)**\
   Run this in an administrator command prompt (required to write to program-files and local-app-data)

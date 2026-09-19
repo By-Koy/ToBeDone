@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Check whether XDG_DATA_HOME is set and use fallback
 if [[ -z $XDG_DATA_HOME ]]; then
@@ -8,8 +8,8 @@ else
 fi
 
 # Clone the repo and build
-cd $HOME/Downloads
-git clone https://github.com/By-Koy/ToBeDone.git && cd ToBeDone
+git clone "https://github.com/By-Koy/ToBeDone.git" "$HOME/Downloads/ToBeDone"
+cd "$HOME/Downloads/ToBeDone" || echo "Could not clone!" && return
 cargo build --release
 
 # Properly use sudo (requires sudo caching)
@@ -18,9 +18,11 @@ cargo build --release
 # *Further modified by Koy
 # Retrieved 2026-09-13, License - CC BY-SA 4.0
 if [[ "$EUID" = 0 ]]; then
+    echo "Yay I'm superuser :gold_star:"
 else
     sudo -k # make sure to ask for password on next sudo ✱
     if sudo true; then
+    true
     else
         echo "Script requires sudo"
         exit 1
@@ -29,8 +31,7 @@ fi
 
 # Install the app
 sudo cp target/release/ToBeDone /usr/local/bin/
-mkdir $TBD_NOTES_HOME/TBD
+mkdir "$TBD_NOTES_HOME/TBD"
 
 # Clean up
-cd ..
-rm -rf ./ToBeDone
+rm -rf "$HOME/Downloads/ToBeDone"
