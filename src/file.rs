@@ -16,6 +16,10 @@ use crate::ARGS as args;
 static PATH: &str  = concat!(env!("TBD_NOTES_HOME"), "/TBD");
 
 pub fn main(app: &mut State, input: Vec<String>) {
+    if env!("TBD_NOTES_HOME") == "." {
+        let _ = fs::create_dir(PATH);
+    }
+
     if args.lock().unwrap().sample {sample(app); return}
     else if args.lock().unwrap().reset {let _ = reset(); return}
 

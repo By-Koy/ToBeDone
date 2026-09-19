@@ -2,41 +2,34 @@
 **A cross-platform TUI note-taking app**
 
 ## Quick-start
-  **Linux/Macos (anything UNIX-like really)**\
+**Linux/Macos (anything UNIX-like really)**\
   ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
   ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
-**Windows**\
-The easiest way to use the app on Windows is to download the portable .exe from the latest release, then running it next to the TBD folder.(they must be in the same directory for the portable version to work)
+**Windows (10 or 11)**\
+  Run this in an administrator command prompt (required to write to program-files and local-app-data)
+  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.bat -o "%temp%\install.bat" && "%temp%\install.bat"  ``
+  ###### (Requires curl, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
 
 ## Features (and to-do list)
 - [ ] ~~**Styling support**~~ **(CANCELED)** - A screen to enable styling and formating. this is instead of markdown which I sadly couldn't figure out :sadge. this feature has been cancled, please check out [this section](https://github.com/By-Koy/ToBeDone/tree/main#a-few-technical-considerations) for more info
 - [x] **Memory** - places notes in a system-wide location for easy access via title
 - [x] **Recent file** - automatically gets the last used file when a title is not supplied
 - [x] **Cross-platform** - works on windows, linux and macos.
-- [x] **Runs quickly and efficiently** right in your terminal.
-- [x] **Written in Rust** ;P
+- [x] **Runs quickly and efficiently** - right in your terminal.
+- [x] **Written in Rust** - ;P
 
-## Installation
-### Install script
-**Linux/Macos (anything UNIX-like really)**\
-  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.sh | zsh ``
-  ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
+## The portable version
+ToBeDone can be either installed to the system or ran via a portable version (found in releases or built using the bellow commands)
 
-**Windows (10 or 11)**\
-  ``curl https://raw.githubusercontent.com/By-Koy/ToBeDone/refs/heads/main/scripts/install.bat -o "%temp%\install.bat" && "%temp%\install.bat"  ``
-  ###### (Requires curl, ZSH, a full [Rust](https://rust-lang.org/tools/install/) install and Git)
-
-### Testing (currently linux/macos only)
+### Buildig portable (linux/macos only)
 These commands build the portable version of the app.\
-It will be put in your Downloads folder and requires a folder named TBD to be put in the same directory.
+It will be put in your Downloads folder
 ```
 git clone https://github.com/By-Koy/ToBeDone.git && cd ToBeDone
 ./build_portable.sh
 ```
 ###### (requires a full [Rust](https://rust-lang.org/tools/install/) install and Git)
-
-Alternatively, you may use the pre-built binaries in the latest release
 
 ## Uninstallation
 **Linux/Macos (anything UNIX-like really)**\
