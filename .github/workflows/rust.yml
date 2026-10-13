@@ -5,6 +5,8 @@ on:
   
   release:
 
+  push:
+
 env:
   CARGO_TERM_COLOR: always
   TBD_NOTES_HOME: "."
