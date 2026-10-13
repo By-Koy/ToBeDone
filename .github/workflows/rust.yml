@@ -2,8 +2,6 @@ name: Build
 
 on:
   workflow_dispatch:
-  
-  release:
 
   push:
 
@@ -61,6 +59,23 @@ jobs:
       if: success()
       with:
        name: Windows-x86_64-portable
+       path: target/release/ToBeDone.exe
+
+  Windows-aarch64:
+
+    runs-on: windows-11-arm
+
+    steps:
+    - uses: actions/checkout@v7.0.1
+    - name: Build
+      run: cargo build --release
+
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v7.0.1
+      if: success()
+      with:
+       name: Windows-aarch64-portable
        path: target/release/ToBeDone.exe
 
   Macos-x86_64:
