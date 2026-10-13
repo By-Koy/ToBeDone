@@ -43,10 +43,11 @@ git clone https://github.com/By-Koy/ToBeDone.git && cd ToBeDone
 
 ## A few technical considerations
 The project it built with Rust and Ratatui to maximize efficiency of both the program and development, and to help me learn and get comfortable with a new library.\
-I decided to use the Crossterm backend for mostly the same reasons, as well as it seaming like the easiest to use and the mot compatible of all the options easily accessible from Ratatui.\
+I decided to use the Crossterm backend for mostly the same reasons, as well as it seaming like the easiest to use and the most compatible of all the options easily accessible from Ratatui.\
 Quite a bit later in development I had realized some parts of the markdown spec aren't possible within a TUI (mostly changing text size) with this and a few other considerations I decided to modify the markdown spec, a full guide of how it works will be added once the feature is out of development.\
-After further consideration, the whole formatting idea went way out of scope even after cutting it. saving such a complecated dataset into a file is not an easy feat, at least for my skill level (and I have grown very sick of this project [![
-](badge)](https://hackatime.hackclub.com/api/v1/badge/U0ALZQ9FP9P/By-Koy/ToBeDone)) I have come to the conclusion that a much more sensible approach is to cancel the feature and maybe add it in the future. 
+After further consideration, the whole formatting idea went way out of scope even after cutting it. saving such a complecated dataset into a file is not an easy feat, at least for my skill level (and I have grown very sick of this project ![Hackatime badge
+](https://hackatime.hackclub.com/api/v1/badge/U0ALZQ9FP9P/By-Koy/ToBeDone)) I have come to the conclusion that a much more sensible approach is to cancel the feature and maybe add it in the future. \
+I decided to use stderr to allow for the .exe file to simply be double-clicked on windows instead of requiring opening power-shell, and given the nature of this program non-standard operation when piping or otherwise being given out-of-scope arguments doesn't seem to be a problem (as there is: a. Proper argument management and b. No reason for it to be ran in such a context)
 
 ## Legal and credits
 Thanks to Hackclub and specificaly the Stardance team for giving me the motivation to make this project.
