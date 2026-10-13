@@ -53,5 +53,5 @@ fn main() {
     crossterm::terminal::enable_raw_mode().unwrap();
     stderr().execute(crossterm::terminal::EnterAlternateScreen).unwrap();
     let mut terminal = Terminal::new(CrosstermBackend::new(stderr())).unwrap();
-    app.run(&mut terminal);
+    app.run(&mut terminal).unwrap();
 }
