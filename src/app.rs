@@ -14,14 +14,15 @@ use crossterm::
 };
 
 use ratatui::{
-    DefaultTerminal, Frame, buffer::Buffer,
+    Terminal, Frame, buffer::Buffer,
     layout::{Position, Rect, Layout, Constraint},
     layout::HorizontalAlignment::Center,
     style::{Stylize},
     symbols::border,
     text::{Line, Text},
     widgets::{Block, Paragraph, Widget},
-    prelude::{Span, Style, Color}
+    prelude::{Span, Style, Color},
+    backend::CrosstermBackend
 };
 
 #[derive(Debug, Default)]
@@ -164,7 +165,7 @@ pub struct State<'a> {
     pub contents: Text<'a>,
     pub id: String,
 } impl<'a> State<'a> {
-    pub fn run(&mut self, term: &mut DefaultTerminal) -> Result<(), Box<dyn Error>> {
+    pub fn run(&mut self, term: &mut Terminal<CrosstermBackend<std::io::Stderr>>) -> Result<(), Box<dyn Error>> {
         self.args = ARGS.lock().unwrap().clone();
         while !self.exit {
             term.draw(|frame| self.draw(frame))?;
@@ -172,6 +173,7 @@ pub struct State<'a> {
         }
 
         file::exit(self);
+        ratatui::restore();
 
         Ok(())
     }
@@ -290,7 +292,7 @@ pub struct State<'a> {
                             } else {
                                 Line::from(vec![
                                             " Menu ".into(),
-                                            "<A> ".blue().bold() ])
+                                            "<ctrl+A> ".blue().bold() ])
                             };
 
         let block = Block::bordered()

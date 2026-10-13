@@ -1,5 +1,11 @@
 use std::env;
+use std::io::stderr;
 use std::sync::{LazyLock, Mutex};
+
+use ratatui::Terminal;
+use ratatui::backend::CrosstermBackend;
+
+use crossterm::ExecutableCommand;
 
 mod app;
 mod file;
@@ -43,5 +49,9 @@ fn main() {
     let mut app = app::State::default();
 
     file::main(&mut app, input);
-    ratatui::run(|terminal| app.run(terminal)).unwrap();
+
+    crossterm::terminal::enable_raw_mode().unwrap();
+    stderr().execute(crossterm::terminal::EnterAlternateScreen).unwrap();
+    let mut terminal = Terminal::new(CrosstermBackend::new(stderr())).unwrap();
+    app.run(&mut terminal);
 }
