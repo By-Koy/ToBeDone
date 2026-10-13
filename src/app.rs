@@ -171,9 +171,10 @@ pub struct State<'a> {
             term.draw(|frame| self.draw(frame))?;
             main(self)?;
         }
-
-        file::exit(self);
+        
         ratatui::restore();
+        file::exit(self);
+
 
         Ok(())
     }
